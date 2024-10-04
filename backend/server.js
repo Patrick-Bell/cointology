@@ -61,7 +61,7 @@ app.use('/api', favouriteRoutes);
 app.use('/api', orderRoutes);
 
 // Webhook route
-app.post('/webhooks', verifyUser, async (request, response) => {
+app.post('/webhooks', async (request, response) => {
   console.log('Received a webhook request.');
   const sig = request.headers['stripe-signature'];
   let event;
@@ -84,14 +84,14 @@ app.post('/webhooks', verifyUser, async (request, response) => {
           const invoice = event.data.object;
           console.log('Invoice was finalized:', invoice);
 
-          const userId = invoice.metadata.user; // Fixed variable name
+          const userId = invoice.user; // Fixed variable name
 
           const newOrder = {
               name: invoice.customer_name || 'Unknown',
               email: invoice.customer_email || 'Unknown',
               phone: invoice.customer_phone || 'Unknown',
               order_id: uuidv4(),
-              user: userId || null, // Use null if userId is not provided
+              user: userId || null,
               line_items: invoice.lines.data.map(item => ({
                   name: item.description || 'Unnamed Item',
                   quantity: item.quantity,

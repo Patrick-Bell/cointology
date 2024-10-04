@@ -53,7 +53,7 @@ router.post("/stripe-checkout", verifyUser, async (req, res) => {
             cancel_url: "https://cointology.onrender.com/cancel",
             billing_address_collection: "required",
             line_items: lineItems,
-            metadata: { user: req.user ? req.user.id : null }, // Store user ID or null
+            user: { user: req.user ? req.user.id : null }, // Store user ID or null
         });
 
         res.json({ sessionId: session.id, url: session.url });
