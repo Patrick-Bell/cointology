@@ -4,10 +4,15 @@ const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Ensure you have Stripe initialized with your secret key
 const path = require('path')
 const fs = require('fs')
-const verifyUser = require('../middleware/verifyUser')
-
+const verifyUser = require('../middleware/verifyUser');
 
 router.post("/stripe-checkout", verifyUser, async (req, res) => {
+
+    const user = req.user
+
+    console.log(user)
+
+    
     try {
         const lineItems = req.body.items.map((item) => {
             const unitAmount = parseInt(parseFloat(item.price) * 100);
@@ -53,8 +58,12 @@ router.post("/stripe-checkout", verifyUser, async (req, res) => {
             cancel_url: "https://cointology.onrender.com/cancel",
             billing_address_collection: "required",
             line_items: lineItems,
-            user: { user: req.user ? req.user.id : null }, // Store user ID or null
+            metadata: { user: req.user ? req.user.id : null }, // Store user ID or null
         });
+
+        // Optionally retrieve the session to confirm metadata
+        const sessionDetails = await stripe.checkout.sessions.retrieve(session.id);
+        console.log('Checkout Session Details:', sessionDetails); // Check the details
 
         res.json({ sessionId: session.id, url: session.url });
     } catch (error) {
@@ -62,5 +71,6 @@ router.post("/stripe-checkout", verifyUser, async (req, res) => {
         res.status(500).json({ error: 'Error processing payment' });
     }
 });
+
 
 module.exports = router;
