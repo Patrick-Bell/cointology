@@ -61,11 +61,8 @@ app.use('/api', favouriteRoutes);
 app.use('/api', orderRoutes);
 
 // Webhook route
-app.post('/webhooks', verifyUser, async (request, response) => {
+app.post('/webhooks', async (request, response) => {
 
-  const user = req.user
-  const userText = user ? user + 'is the user for this order' : 'proceeding as a guess for this order'
-  console.log('this is the test user', userText)
 
   console.log('Received a webhook request.');
   const sig = request.headers['stripe-signature'];
@@ -95,7 +92,7 @@ app.post('/webhooks', verifyUser, async (request, response) => {
               email: invoice.customer_email || 'Unknown',
               phone: invoice.customer_phone || 'Unknown',
               order_id: uuidv4(),
-              user: user ? user.id : null,
+              user: invoice.metadata.user,
               line_items: invoice.lines.data.map(item => ({
                   name: item.description || 'Unnamed Item',
                   quantity: item.quantity,
