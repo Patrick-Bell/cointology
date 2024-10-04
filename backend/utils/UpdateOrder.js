@@ -1,4 +1,5 @@
 const Order = require('../models/Order')
+const Product = require('../models/Product')
 
 
 /* 
@@ -32,6 +33,32 @@ const addOrderToDatabase = async (orderData) => {
         throw new Error('Database Error: Unable to save order');
     }
 };
+
+// Route to update stock quantities
+
+const updateStockAfterOrder = async (orderData) => {
+
+    try{
+        for (const item of orderData.line_items) {
+            const { name, quantity } = item
+
+            const updatedProduct = await Product.findOneAndUpdate(
+                { name: name },
+                { $inc: { stock: -quantity} },
+                { new: true}
+            )
+
+            console.log(`Stock updated for product ${name}`, updatedProduct);
+
+        }
+
+        return { message: 'Stock successfully updated'}
+
+
+    }catch(e) {
+        console.log(e)
+    }
+}
 
 
 module.exports = { addOrderToDatabase }

@@ -53,7 +53,7 @@ router.post("/stripe-checkout", verifyUser, async (req, res) => {
                 enabled: true,
                 invoice_data: {
                   metadata: {
-                    user: '66fbfd9aed88064842107b27', // Metadata at the invoice level
+                    user: req.user ? req.user.id : null // Metadata at the invoice level
                   },
                 },
               },

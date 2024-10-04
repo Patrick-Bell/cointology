@@ -88,35 +88,36 @@ app.post('/webhooks', async (request, response) => {
 
 
           const newOrder = {
-              name: invoice.customer_name || 'Unknown',
-              email: invoice.customer_email || 'Unknown',
-              phone: invoice.customer_phone || 'Unknown',
-              order_id: uuidv4(),
-              user: invoice.metadata.user,
-              line_items: invoice.lines.data.map(item => ({
-                  name: item.description || 'Unnamed Item',
-                  quantity: item.quantity,
-                  unit_price: (item.amount / item.quantity),
-              })),
-              total_price: invoice.total,
-              shipping: 1.99,
-              invoice: invoice.hosted_invoice_url,
-              discount: 0,
-              order_status: 'pending',
-              order_date: Date.now(),
-              order_type: 'card',
-              paid: 'paid',
-              shipping_address: {
-                  address_line_1: invoice.customer_address.line1 || '',
-                  address_line_2: invoice.customer_address.line2 || '',
-                  city: invoice.customer_address.city || '',
-                  postal_code: invoice.customer_address.postal_code || '',
-                  country: 'United Kingdom'
-              },
-              shipping_method: 'standard',
-              estimated_delivery: 2,
-              order_message: invoice.message || ''
-          };
+            name: invoice.customer_name || 'Unknown',
+            email: invoice.customer_email || 'Unknown',
+            phone: invoice.customer_phone || 'Unknown',
+            order_id: uuidv4(),
+            user: invoice.metadata.user,
+            line_items: invoice.lines.data.map(item => ({
+                name: item.description || 'Unnamed Item',
+                quantity: item.quantity,
+                unit_price: parseFloat(((item.amount / item.quantity) / 100).toFixed(2)), // Ensures 2 decimal places
+            })),
+            total_price: parseFloat((invoice.total / 100).toFixed(2)),  // Ensures 2 decimal places
+            shipping: parseFloat((1.99).toFixed(2)),  // Fixed to 2 decimal places for shipping
+            invoice: invoice.hosted_invoice_url,
+            discount: 0,
+            order_status: 'pending',
+            order_date: Date.now(),
+            order_type: 'card',
+            paid: 'paid',
+            shipping_address: {
+                address_line_1: invoice.customer_address?.line1 || '',
+                address_line_2: invoice.customer_address?.line2 || '',
+                city: invoice.customer_address?.city || '',
+                postal_code: invoice.customer_address?.postal_code || '',
+                country: 'United Kingdom'
+            },
+            shipping_method: 'standard',
+            estimated_delivery: 2,
+            order_message: invoice.message || ''
+        };
+        
 
           console.log('New Order:', newOrder); // Log the new order
 
