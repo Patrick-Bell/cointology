@@ -51,7 +51,12 @@ router.post("/stripe-checkout", verifyUser, async (req, res) => {
             },
             invoice_creation: {
                 enabled: true,
-            },
+                invoice_data: {
+                  metadata: {
+                    user: '66fbfd9aed88064842107b27', // Metadata at the invoice level
+                  },
+                },
+              },
             allow_promotion_codes: true,
             mode: "payment",
             success_url: "https://cointology.onrender.com/success",
