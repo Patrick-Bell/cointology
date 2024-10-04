@@ -58,8 +58,8 @@ router.post("/stripe-checkout", async (req, res) => {
             },
             allow_promotion_codes: true,
             mode: "payment",
-            success_url: "http://localhost:3001/success",
-            cancel_url: "http://localhost:3001/cancel",
+            success_url: "https://cointology.onrender.com/success",
+            cancel_url: "https://cointology.onrender.com/cancel",
             billing_address_collection: "required",
             line_items: lineItems, 
         });
