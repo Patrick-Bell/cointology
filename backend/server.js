@@ -89,12 +89,15 @@ app.post('/webhooks', verifyUser, async (request, response) => {
           const invoice = event.data.object;
           console.log('Invoice was finalized:', invoice);
 
+          const user = invoice.metadata.user || 'guest';
+
+
           const newOrder = {
               name: invoice.customer_name || 'Unknown', // Fallback in case of missing data
               email: invoice.customer_email || 'Unknown',
               phone: invoice.customer_phone || 'Unknown',
               order_id: uuidv4(),
-              user: user ? user.id : '',
+              user: user,
               line_items: invoice.lines.data.map(item => ({
                   name: item.description || 'Unnamed Item',
                   quantity: item.quantity,

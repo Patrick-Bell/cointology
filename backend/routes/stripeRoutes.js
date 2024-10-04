@@ -4,9 +4,10 @@ const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Ensure you have Stripe initialized with your secret key
 const path = require('path')
 const fs = require('fs')
+const verifyUser = require('../middleware/verifyUser')
 
 
-router.post("/stripe-checkout", async (req, res) => {
+router.post("/stripe-checkout", verifyUser, async (req, res) => {
     try {
         const lineItems = req.body.items.map((item) => {
             const unitAmount = parseInt(parseFloat(item.price) * 100);
@@ -62,6 +63,8 @@ router.post("/stripe-checkout", async (req, res) => {
             cancel_url: "https://cointology.onrender.com/cancel",
             billing_address_collection: "required",
             line_items: lineItems, 
+            metadata: { user: req.user.id || 'guest' },
+
         });
 
         res.json({ sessionId: session.id, url: session.url });
