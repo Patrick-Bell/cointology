@@ -8,7 +8,6 @@ Routes to include after an order has been placed
 
 
 */
-
 const Order = require('../models/Order')
 
 const addOrderToDatabase = async (orderData) => {
