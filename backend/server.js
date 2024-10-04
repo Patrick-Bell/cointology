@@ -62,19 +62,14 @@ app.use('/api', orderRoutes);
 
 // Webhook route
 app.post('/webhooks', verifyUser, async (request, response) => {
-  console.log('Received a webhook request.'); // Log the receipt of the request
-  console.log(request.headers['stripe-signature']); // Correct logging of stripe signature
-
-  const user = request.user; // Fixed reference
-  console.log(user)
-
+  console.log('Received a webhook request.');
   const sig = request.headers['stripe-signature'];
   let event;
 
   try {
       // Verify the signature using the webhook secret
       event = stripe.webhooks.constructEvent(request.rawBody, sig, process.env.STRIPE_SIGNING_SECRET);
-      console.log('Webhook signature verified successfully.'); // Log successful verification
+      console.log('Webhook signature verified successfully.');
   } catch (err) {
       console.error('⚠️  Webhook signature verification failed.', err.message);
       return response.status(400).send(`Webhook Error: ${err.message}`);
@@ -89,15 +84,14 @@ app.post('/webhooks', verifyUser, async (request, response) => {
           const invoice = event.data.object;
           console.log('Invoice was finalized:', invoice);
 
-          const user = invoice.metadata.user || 'guest';
-
+          const userId = invoice.metadata.user; // Fixed variable name
 
           const newOrder = {
-              name: invoice.customer_name || 'Unknown', // Fallback in case of missing data
+              name: invoice.customer_name || 'Unknown',
               email: invoice.customer_email || 'Unknown',
               phone: invoice.customer_phone || 'Unknown',
               order_id: uuidv4(),
-              user: user,
+              user: userId || null, // Use null if userId is not provided
               line_items: invoice.lines.data.map(item => ({
                   name: item.description || 'Unnamed Item',
                   quantity: item.quantity,
@@ -126,11 +120,10 @@ app.post('/webhooks', verifyUser, async (request, response) => {
           console.log('New Order:', newOrder); // Log the new order
 
           try {
-              await addOrderToDatabase(newOrder); // Ensure this is awaited
+              await addOrderToDatabase(newOrder);
               console.log('Order saved to database successfully.');
           } catch (dbError) {
               console.error('Error saving order to database:', dbError.message);
-              // Optionally respond with an error status
               return response.status(500).json({ error: 'Internal server error' });
           }
 
@@ -140,7 +133,6 @@ app.post('/webhooks', verifyUser, async (request, response) => {
           console.log(`Received unhandled event type: ${event.type}`);
   }
 
-  // Respond to Stripe that the webhook was received
   response.json({ received: true });
 });
 

@@ -12,11 +12,6 @@ router.post("/stripe-checkout", verifyUser, async (req, res) => {
         const lineItems = req.body.items.map((item) => {
             const unitAmount = parseInt(parseFloat(item.price) * 100);
 
-        
-            // Check if the image file exists before sending to Stripe
-        
-            console.log(item)
-            
             return {
                 price_data: {
                     currency: 'gbp',
@@ -29,9 +24,6 @@ router.post("/stripe-checkout", verifyUser, async (req, res) => {
                 quantity: item.quantity,
             };
         });
-        
-
-        console.log(lineItems)
 
         // Create a Stripe checkout session
         const session = await stripe.checkout.sessions.create({
@@ -40,7 +32,6 @@ router.post("/stripe-checkout", verifyUser, async (req, res) => {
                 allowed_countries: ['GB'],
             },
             shipping_options: [
-                // Define your shipping options here
                 {
                     shipping_rate_data: {
                         type: 'fixed_amount',
@@ -49,7 +40,6 @@ router.post("/stripe-checkout", verifyUser, async (req, res) => {
                         delivery_estimate: { minimum: { unit: 'business_day', value: 5 }, maximum: { unit: 'business_day', value: 10 } },
                     },
                 },
-                // Additional shipping options can be added here
             ],
             phone_number_collection: {
                 enabled: true,
@@ -62,9 +52,8 @@ router.post("/stripe-checkout", verifyUser, async (req, res) => {
             success_url: "https://cointology.onrender.com/success",
             cancel_url: "https://cointology.onrender.com/cancel",
             billing_address_collection: "required",
-            line_items: lineItems, 
-            metadata: { user: req.user.id || 'guest' },
-
+            line_items: lineItems,
+            metadata: { user: req.user ? req.user.id : null }, // Store user ID or null
         });
 
         res.json({ sessionId: session.id, url: session.url });
