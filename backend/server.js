@@ -65,6 +65,9 @@ app.post('/webhooks', verifyUser, async (request, response) => {
   console.log('Received a webhook request.'); // Log the receipt of the request
   console.log(request.headers['stripe-signature']); // Correct logging of stripe signature
 
+  const user = request.user; // Fixed reference
+  console.log(user)
+
   const sig = request.headers['stripe-signature'];
   let event;
 
@@ -80,8 +83,6 @@ app.post('/webhooks', verifyUser, async (request, response) => {
   // Log the event type received
   console.log(`Received event type: ${event.type}`);
 
-  const user = request.user; // Fixed reference
-
   // Handle the event types you care about
   switch (event.type) {
       case 'invoice.finalized':
@@ -93,7 +94,7 @@ app.post('/webhooks', verifyUser, async (request, response) => {
               email: invoice.customer_email || 'Unknown',
               phone: invoice.customer_phone || 'Unknown',
               order_id: uuidv4(),
-              user: user ? user.id : null,
+              user: user ? user.id : '',
               line_items: invoice.lines.data.map(item => ({
                   name: item.description || 'Unnamed Item',
                   quantity: item.quantity,
