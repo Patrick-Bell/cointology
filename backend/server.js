@@ -64,7 +64,8 @@ app.use('/api', orderRoutes);
 app.post('/webhooks', verifyUser, async (request, response) => {
 
   const user = req.user
-  console.log('this is the test user', user)
+  const userText = user ? user + 'is the user for this order' : 'proceeding as a guess for this order'
+  console.log('this is the test user', userText)
 
   console.log('Received a webhook request.');
   const sig = request.headers['stripe-signature'];

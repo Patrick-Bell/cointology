@@ -1,3 +1,6 @@
+const Order = require('../models/Order')
+
+
 /* 
 Routes to include after an order has been placed
 
@@ -8,7 +11,9 @@ Routes to include after an order has been placed
 
 
 */
-const Order = require('../models/Order')
+
+
+// Route to add Card (stripe) payment to the database 
 
 const addOrderToDatabase = async (orderData) => {
     try {
