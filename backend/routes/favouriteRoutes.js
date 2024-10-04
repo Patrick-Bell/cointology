@@ -11,7 +11,7 @@ const mongoose = require('mongoose')
 
 
 // Route to add to favourites
-outer.post('/add-to-favourites/:id', verifyUser, async (req, res) => {
+router.post('/add-to-favourites/:id', verifyUser, async (req, res) => {
     const productId = req.params.id;
     console.log(productId);
 
