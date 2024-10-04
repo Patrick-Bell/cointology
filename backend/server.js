@@ -59,7 +59,7 @@ app.use('/api', orderRoutes);
 
 // Webhook route
 app.post('/webhooks', (request, response) => {
-    console.log('Received a webhook request.'); // Log the receipt of the request
+    console.log('Received a webhook request. test to see if ipdates'); // Log the receipt of the request
 
     const sig = request.headers['stripe-signature'];
     let event;
