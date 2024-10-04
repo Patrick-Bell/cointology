@@ -10,6 +10,9 @@ const User = require('./models/User');
 const { v4: uuidv4 } = require('uuid');
 const cookieParser = require('cookie-parser');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const verifyUser = require('./middleware/verifyUser')
+const Order = require('./models/Order')
+const { addOrderToDatabase } = require('./utils/UpdateOrder')
 
 const app = express();
 
@@ -58,38 +61,83 @@ app.use('/api', favouriteRoutes);
 app.use('/api', orderRoutes);
 
 // Webhook route
-app.post('/webhooks', (request, response) => {
-    console.log('Received a webhook request. test to see if ipdates'); // Log the receipt of the request
+app.post('/webhooks', verifyUser, async (request, response) => {
+  console.log('Received a webhook request.'); // Log the receipt of the request
+  console.log(request.headers['stripe-signature']); // Correct logging of stripe signature
 
-    const sig = request.headers['stripe-signature'];
-    let event;
+  const sig = request.headers['stripe-signature'];
+  let event;
 
-    try {
-        // Verify the signature using the webhook secret
-        event = stripe.webhooks.constructEvent(request.rawBody, sig, process.env.STRIPE_SIGNING_SECRET);
-        console.log('Webhook signature verified successfully.'); // Log successful verification
-    } catch (err) {
-        console.error('⚠️  Webhook signature verification failed.', err.message);
-        return response.status(400).send(`Webhook Error: ${err.message}`);
-    }
+  try {
+      // Verify the signature using the webhook secret
+      event = stripe.webhooks.constructEvent(request.rawBody, sig, process.env.STRIPE_SIGNING_SECRET);
+      console.log('Webhook signature verified successfully.'); // Log successful verification
+  } catch (err) {
+      console.error('⚠️  Webhook signature verification failed.', err.message);
+      return response.status(400).send(`Webhook Error: ${err.message}`);
+  }
 
-    // Log the event type received
-    console.log(`Received event type: ${event.type}`);
+  // Log the event type received
+  console.log(`Received event type: ${event.type}`);
 
-    // Handle the event types you care about
-    switch (event.type) {
-        case 'invoice.finalized':
-            const invoice = event.data.object;
-            console.log('Invoice was finalized:', invoice);
-            // Implement your logic here
-            break;
+  const user = request.user; // Fixed reference
 
-        default:
-            console.log(`Received unhandled event type: ${event.type}`);
-    }
+  // Handle the event types you care about
+  switch (event.type) {
+      case 'invoice.finalized':
+          const invoice = event.data.object;
+          console.log('Invoice was finalized:', invoice);
 
-    // Respond to Stripe that the webhook was received
-    response.json({ received: true });
+          const newOrder = {
+              name: invoice.customer_name || 'Unknown', // Fallback in case of missing data
+              email: invoice.customer_email || 'Unknown',
+              phone: invoice.customer_phone || 'Unknown',
+              order_id: uuidv4(),
+              user: user ? user.id : null,
+              line_items: invoice.lines.data.map(item => ({
+                  name: item.description || 'Unnamed Item',
+                  quantity: item.quantity,
+                  unit_price: (item.amount / item.quantity),
+              })),
+              total_price: invoice.total,
+              shipping: 1.99,
+              invoice: invoice.hosted_invoice_url,
+              discount: 0,
+              order_status: 'pending',
+              order_date: Date.now(),
+              order_type: 'card',
+              paid: 'paid',
+              shipping_address: {
+                  address_line_1: invoice.customer_address.line1 || '',
+                  address_line_2: invoice.customer_address.line2 || '',
+                  city: invoice.customer_address.city || '',
+                  postal_code: invoice.customer_address.postal_code || '',
+                  country: 'United Kingdom'
+              },
+              shipping_method: 'standard',
+              estimated_delivery: 2,
+              order_message: invoice.message || ''
+          };
+
+          console.log('New Order:', newOrder); // Log the new order
+
+          try {
+              await addOrderToDatabase(newOrder); // Ensure this is awaited
+              console.log('Order saved to database successfully.');
+          } catch (dbError) {
+              console.error('Error saving order to database:', dbError.message);
+              // Optionally respond with an error status
+              return response.status(500).json({ error: 'Internal server error' });
+          }
+
+          break;
+
+      default:
+          console.log(`Received unhandled event type: ${event.type}`);
+  }
+
+  // Respond to Stripe that the webhook was received
+  response.json({ received: true });
 });
 
 // Catch-all route to handle all other requests (send to React)

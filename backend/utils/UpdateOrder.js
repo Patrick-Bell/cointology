@@ -1,0 +1,33 @@
+/* 
+Routes to include after an order has been placed
+
+1. Create a new Order (mongoose)
+2. Update the stock
+3. Send email to the customer
+4. Send email to the admin
+
+
+*/
+
+const Order = require('../models/Order')
+
+const addOrderToDatabase = async (orderData) => {
+    try {
+        // Create a new order instance
+        const newOrder = new Order(orderData);
+
+        // Save the new order to the database
+        await newOrder.save();
+
+        // Log success message (optional)
+        console.log('Order saved successfully:', newOrder);
+    } catch (error) {
+        // Log the error with more context
+        console.error('Error saving order to database:', error.message);
+        // Optionally, rethrow the error or handle it as needed
+        throw new Error('Database Error: Unable to save order');
+    }
+};
+
+
+module.exports = { addOrderToDatabase }
