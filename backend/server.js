@@ -10,8 +10,29 @@ const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 const { v4: uuidv4 } = require('uuid');
 const cookieParser = require('cookie-parser')
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const bodyParser = require('body-parser'); // Make sure to import body-parser
+
 
 const app = express();
+
+app.use((req, res, next) => {
+  if (req.path === '/webhook') { // Make sure it checks for the correct endpoint
+    let data = '';
+    req.setEncoding('utf8');
+    req.on('data', (chunk) => {
+      data += chunk;
+    });
+    req.on('end', () => {
+      req.rawBody = data; // Store raw body in req object
+      next();
+    });
+  } else {
+    express.json()(req, res, next); // Handle other routes with JSON body parsing
+  }
+});
+
 
 // Middleware to handle JSON and URL-encoded data
 app.use(express.json());
@@ -37,11 +58,49 @@ const stripeRoutes = require('./routes/stripeRoutes');
 const userRoutes = require('./routes/userRoutes')
 const favouriteRoutes = require('./routes/favouriteRoutes')
 const orderRoutes = require('./routes/orderRoutes')
+const stripeWebhookRoutes = require('./routes/stripeWebhook')
 app.use('/api', productRoutes);
 app.use('/api', stripeRoutes);
 app.use('/api', userRoutes)
 app.use('/api', favouriteRoutes)
 app.use('/api', orderRoutes)
+
+
+
+app.post('/webhook', (request, response) => {
+  console.log('Received a webhook request.'); // Log the receipt of the request
+
+  const sig = request.headers['stripe-signature'];
+  let event;
+
+  try {
+      // Verify the signature using the webhook secret
+      event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+      console.log('Webhook signature verified successfully.'); // Log successful verification
+  } catch (err) {
+      console.error('⚠️  Webhook signature verification failed.', err.message);
+      return response.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Log the event type received
+  console.log(`Received event type: ${event.type}`);
+
+  // Handle the event types you care about
+  switch (event.type) {
+      case 'invoice.finalized':
+          const invoice = event.data.object;
+          console.log('Invoice was finalized:', invoice);
+          // Implement your logic here
+          break;
+
+      default:
+          console.log(`Received unhandled event type: ${event.type}`);
+  }
+
+  // Respond to Stripe that the webhook was received
+  response.json({ received: true });
+});
+
 
 /*
 const createUser = async (username, password) => {

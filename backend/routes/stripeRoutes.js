@@ -5,8 +5,6 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Ensure you h
 const path = require('path')
 const fs = require('fs')
 
-console.log('Stripe Secret Key:', process.env.STRIPE_SECRET_KEY);
-
 
 router.post("/stripe-checkout", async (req, res) => {
     try {
