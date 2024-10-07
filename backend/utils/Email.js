@@ -177,6 +177,17 @@ const sendEmailToUserAfterOrder = async (orderData) => {
 // Function to send email to admin after an order
 const sendEmailToAdminAfterOrder = async (orderData) => {
     try {
+        // Create a table row for each line item in the order
+        const orderSummary = orderData.line_items.map(item => {
+            return `
+            <tr style="text-align: center; border: 1px solid #ccc;">
+                <td style="padding: 10px; border-bottom: 1px solid #ccc;">${item.name}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ccc;">${item.quantity}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ccc;">£${item.unit_price.toFixed(2)}</td>
+            </tr>
+            `;
+        }).join('');
+
         // Prepare email content
         const emailContent = `
             <div style="font-family: Arial, sans-serif; color: #333;">
@@ -187,10 +198,25 @@ const sendEmailToAdminAfterOrder = async (orderData) => {
                 <ul>
                     <li><strong>Order ID:</strong> ${orderData.order_id}</li>
                     <li><strong>Customer:</strong> ${orderData.name} (${orderData.email})</li>
-                    <li><strong>Coins Purchased:</strong> ${line_items}</li>
-                    <li><strong>Price:</strong> $${price.toFixed(2)}</li>
                     <li><strong>Account Type:</strong> ${orderData.user ? 'Registered User' : 'Guest'}</li>
                 </ul>
+
+                <h3>Order Summary</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 10px; border: 1px solid #ccc;">Product Name</th>
+                            <th style="padding: 10px; border: 1px solid #ccc;">Quantity</th>
+                            <th style="padding: 10px; border: 1px solid #ccc;">Unit Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${orderSummary}
+                    </tbody>
+                </table>
+
+                <h3>Total Price</h3>
+                <p style="font-size: 16px;"><strong>Total:</strong> £${orderData.total_price.toFixed(2)}</p>
 
                 <p>You can view this order in the admin panel:</p>
                 <a href="https://yourwebsite.com/admin/orders/${orderData.order_id}" style="color: #007bff;">View Order</a>
