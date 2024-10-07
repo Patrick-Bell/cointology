@@ -66,7 +66,7 @@ function OrderDetail() {
         return <Typography variant="h6">Loading...</Typography>; // Placeholder while data is being fetched
     }
 
-    const { name, email, phone, line_items, total_price, order_status, order_type, order_date, order_message, shipping_address } = order;
+    const { name, email, phone, line_items, total_price, order_status, order_type, order_date, order_message, shipping_address, estimated_delivery, shipping_method, shipping } = order;
 
     return (
         <Box sx={{ padding: 2, marginTop: '64px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -106,10 +106,10 @@ function OrderDetail() {
                                 <ListItemText primary="Address" secondary={`${shipping_address.address_line_1}, ${shipping_address.city}, ${shipping_address.address_line_2}, ${shipping_address.postal_code}`} />
                             </ListItem>
                             <ListItem>
-                                <ListItemText primary="Shipping Method" secondary={shipping_address.shipping_method} />
+                                <ListItemText primary="Shipping Method" secondary={shipping_method.toUpperCase() + ' - ' + '£'+(shipping / 100).toFixed(2)} />
                             </ListItem>
                             <ListItem>
-                                <ListItemText primary="Estimated Delivery" secondary={shipping_address.estimated_delivery ? new Date(shipping_address.estimated_delivery).toLocaleString() : 'N/A'} />
+                                <ListItemText primary="Estimated Delivery" secondary={estimated_delivery ? (new Date(estimated_delivery.earliestDate).toLocaleDateString()) + ' - ' + (new Date(estimated_delivery.latestDate).toLocaleDateString()): 'N/A'} />
                             </ListItem>
                         </List>
                     </Grid>
