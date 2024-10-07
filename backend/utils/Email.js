@@ -25,15 +25,56 @@ const Orders = require('../models/Order')
 
 
 // Function to send email to user after an order
-const sendEmailToUserAfterOrder = async (user) => {
-    try{
+const sendEmailToUserAfterOrder = async (orderData) => {
+    try {
+
+        // Create a detailed order summary
+        const orderSummary = orderData.line_items.map(item => {
+            return `
+            <tr>
+                <td>${item.name}</td>
+                <td>${item.quantity}</td>
+                <td>£${item.unit_price.toFixed(2)}</td>
+            </tr>
+            `;
+        }).join('');
 
         const emailContent = `
-        Hi ${user.name},<br>
-        Thank you for your recent order.
+        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+            <h2>Hi ${orderData.name},</h2>
+            <p>Thank you for your recent order! We are excited to get your items shipped to you.</p>
 
-        
-        `
+            <h3>Order Summary:</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <thead>
+                    <tr>
+                        <th style="border: 1px solid #ccc; padding: 8px;">Product</th>
+                        <th style="border: 1px solid #ccc; padding: 8px;">Quantity</th>
+                        <th style="border: 1px solid #ccc; padding: 8px;">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${orderSummary}
+                </tbody>
+            </table>
+
+            <h3>Total Price: £${orderData.total_price.toFixed(2)}</h3>
+
+            <h3>Shipping Information:</h3>
+            <p>
+                ${orderData.shipping_address.address_line_1}<br>
+                ${orderData.shipping_address.city}, ${shipping_address.address_line_2}<br>
+                ${orderData.shipping_address.postal_code}
+            </p>
+
+            <p>We will notify you as soon as your order is on its way!</p>
+            <p>If you have any questions, feel free to reach out.</p>
+
+            <p>Thank you for shopping with us!</p>
+
+            <p>Best Regards,<br>Your Company Name</p>
+        </div>
+        `;
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -41,22 +82,20 @@ const sendEmailToUserAfterOrder = async (user) => {
                 user: process.env.EMAIL,
                 pass: process.env.PASS
             }
-        })
-
+        });
 
         await transporter.sendMail({
             from: process.env.EMAIL,   
             to: user.email,
-            subject: 'Thank you for your order!',
+            subject: 'Thank You for Your Order!',
             html: emailContent
-        })
+        });
 
-
-    }catch(e) {
-
-        console.log(e)
+    } catch (e) {
+        console.error('Error sending email:', e);
     }
 }
+
 
 
 // Function to send email to admin after an order

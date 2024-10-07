@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const Order = require('../models/Order')
 const User = require('../models/User')
+const Product = require('../models/Product')
 const verifyUser = require('../middleware/verifyUser')
 const { v4: uuidv4 } = require('uuid')
 
@@ -184,6 +185,21 @@ router.post('/cash-payment-gateway', verifyUser, async (req, res) => {
     }
 })
 
+
+// get image
+router.get('/get-image/:name', async (req, res) => {
+    const { name } = req.params 
+    try {
+        const product = await Product.findOne({ name: name })
+        const image = product.front_image
+
+        return res.status(200).json(image)
+
+    }catch(e) {
+        console.log(e)
+        res.status(500).json({ message: e })
+    }
+})
 
 
 module.exports = router

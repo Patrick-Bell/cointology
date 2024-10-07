@@ -13,6 +13,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const verifyUser = require('./middleware/verifyUser')
 const Order = require('./models/Order')
 const { addOrderToDatabase } = require('./utils/UpdateOrder')
+const { sendEmailToUserAfterOrder } = require('./utils/Email')
 
 const app = express();
 
@@ -61,82 +62,82 @@ app.use('/api', favouriteRoutes);
 app.use('/api', orderRoutes);
 
 // Webhook route
-app.post('/webhooks', async (request, response) => {
+app.post('/webhooks', (request, response) => {
 
-
-  console.log('Received a webhook request.');
-  const sig = request.headers['stripe-signature'];
-  let event;
-
-  try {
-      // Verify the signature using the webhook secret
-      event = stripe.webhooks.constructEvent(request.rawBody, sig, process.env.STRIPE_SIGNING_SECRET);
-      console.log('Webhook signature verified successfully.');
-  } catch (err) {
-      console.error('⚠️  Webhook signature verification failed.', err.message);
-      return response.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  // Log the event type received
-  console.log(`Received event type: ${event.type}`);
-
-  // Handle the event types you care about
-  switch (event.type) {
-      case 'invoice.finalized':
-          const invoice = event.data.object;
-          console.log('Invoice was finalized:', invoice);
-
-
-          const newOrder = {
-            name: invoice.customer_name || 'Unknown',
-            email: invoice.customer_email || 'Unknown',
-            phone: invoice.customer_phone || 'Unknown',
-            order_id: uuidv4(),
-            user: invoice.metadata.user,
-            line_items: invoice.lines.data.map(item => ({
-                name: item.description || 'Unnamed Item',
-                quantity: item.quantity,
-                unit_price: parseFloat(((item.amount / item.quantity) / 100).toFixed(2)), // Ensures 2 decimal places
-            })),
-            total_price: parseFloat((invoice.total / 100).toFixed(2)),  // Ensures 2 decimal places
-            shipping: parseFloat((1.99).toFixed(2)),  // Fixed to 2 decimal places for shipping
-            invoice: invoice.hosted_invoice_url,
-            discount: 0,
-            order_status: 'pending',
-            order_date: Date.now(),
-            order_type: 'card',
-            paid: 'paid',
-            shipping_address: {
-                address_line_1: invoice.customer_address?.line1 || '',
-                address_line_2: invoice.customer_address?.line2 || '',
-                city: invoice.customer_address?.city || '',
-                postal_code: invoice.customer_address?.postal_code || '',
-                country: 'United Kingdom'
-            },
-            shipping_method: 'standard',
-            estimated_delivery: 2,
-            order_message: invoice.message || ''
-        };
-        
-
-          console.log('New Order:', newOrder); // Log the new order
-
-          try {
-              await addOrderToDatabase(newOrder);
-              console.log('Order saved to database successfully.');
-          } catch (dbError) {
-              console.error('Error saving order to database:', dbError.message);
-              return response.status(500).json({ error: 'Internal server error' });
-          }
-
-          break;
-
-      default:
-          console.log(`Received unhandled event type: ${event.type}`);
-  }
-
-  response.json({ received: true });
-});
+    console.log('Received a webhook request.');
+    const sig = request.headers['stripe-signature'];
+    let event;
+  
+    try {
+        // Verify the signature using the webhook secret
+        event = stripe.webhooks.constructEvent(request.rawBody, sig, process.env.STRIPE_SIGNING_SECRET);
+        console.log('Webhook signature verified successfully.');
+    } catch (err) {
+        console.error('⚠️  Webhook signature verification failed.', err.message);
+        return response.status(400).send(`Webhook Error: ${err.message}`);
+    }
+  
+    // Log the event type received
+    console.log(`Received event type: ${event.type}`);
+  
+    // Respond to Stripe immediately to avoid timeout
+    response.status(200).json({ received: true });
+  
+    // Handle the event asynchronously
+    (async () => {
+        switch (event.type) {
+            case 'invoice.finalized':
+                const invoice = event.data.object;
+                console.log('Invoice was finalized:', invoice);
+  
+                const newOrder = {
+                    name: invoice.customer_name || 'Unknown',
+                    email: invoice.customer_email || 'Unknown',
+                    phone: invoice.customer_phone || 'Unknown',
+                    order_id: uuidv4(),
+                    user: invoice.metadata.user,
+                    line_items: invoice.lines.data.map(item => ({
+                        name: item.description || 'Unnamed Item',
+                        quantity: item.quantity,
+                        unit_price: parseFloat(((item.amount / item.quantity) / 100).toFixed(2)),
+                    })),
+                    total_price: parseFloat((invoice.total / 100).toFixed(2)),
+                    shipping: parseFloat((1.99).toFixed(2)),
+                    invoice: invoice.hosted_invoice_url,
+                    discount: 0,
+                    order_status: 'pending',
+                    order_date: Date.now(),
+                    order_type: 'card',
+                    paid: 'paid',
+                    shipping_address: {
+                        address_line_1: invoice.customer_address?.line1 || '',
+                        address_line_2: invoice.customer_address?.line2 || '',
+                        city: invoice.customer_address?.city || '',
+                        postal_code: invoice.customer_address?.postal_code || '',
+                        country: 'United Kingdom'
+                    },
+                    shipping_method: 'standard',
+                    estimated_delivery: 2,
+                    order_message: invoice.message || ''
+                };
+  
+                console.log('New Order:', newOrder); // Log the new order
+  
+                try {
+                    await addOrderToDatabase(newOrder);
+                    await sendEmailToUserAfterOrder(newOrder)
+                    console.log('Order saved to database successfully.');
+                } catch (dbError) {
+                    console.error('Error saving order to database:', dbError.message);
+                }
+                break;
+  
+            default:
+                console.log(`Received unhandled event type: ${event.type}`);
+        }
+    })();
+  });
+  
 
 // Catch-all route to handle all other requests (send to React)
 app.get('*', (req, res) => {

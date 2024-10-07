@@ -12,12 +12,13 @@ import {
     ListItemAvatar,
     Avatar,
 } from '@mui/material';
-import { Person, Home, Receipt, LocalShipping } from '@mui/icons-material';
+import { Person, Home, Receipt } from '@mui/icons-material';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
 function OrderDetail() {
     const [order, setOrder] = useState(null);
+    const [images, setImages] = useState({});
     const { id } = useParams(); // Retrieve order id from URL
 
     useEffect(() => {
@@ -26,13 +27,40 @@ function OrderDetail() {
                 const response = await axios.get(`/api/orders/${id}`); // Replace with your API endpoint
                 console.log('order', response.data);
                 setOrder(response.data);
+                await fetchImages(response.data.line_items); // Fetch images after setting order
             } catch (error) {
                 console.error('Error fetching order details:', error);
             }
         };
 
+        const fetchImages = async (lineItems) => {
+            if (lineItems && Array.isArray(lineItems)) {
+                const imagePromises = lineItems.map(async (item) => {
+                    return await findImage(item.name);
+                });
+
+                const resolvedImages = await Promise.all(imagePromises);
+                const imageMap = resolvedImages.reduce((acc, image, index) => {
+                    acc[lineItems[index].name] = image || null; // Map names to images
+                    return acc;
+                }, {});
+
+                setImages(imageMap);
+            }
+        };
+
         fetchOrderDetails();
-    }, [id]);
+    }, [id]); // No need to include order in dependencies
+
+    const findImage = async (name) => {
+        try {
+            const response = await axios.get(`/api/get-image/${name}`);
+            return response.data; // Return the image URL
+        } catch (e) {
+            console.log(`Error fetching image for ${name}:`, e);
+            return null; // Return null if there's an error
+        }
+    };
 
     if (!order) {
         return <Typography variant="h6">Loading...</Typography>; // Placeholder while data is being fetched
@@ -100,7 +128,7 @@ function OrderDetail() {
                             {/* Image of the product */}
                             <ListItemAvatar>
                                 <Avatar
-                                    src={item.front_image}  // Replace 'front_image' with the correct image key
+                                    src={images[item.name] || '/path/to/placeholder.jpg'} // Use fetched image or placeholder
                                     alt={item.name}
                                     sx={{ width: 56, height: 56, marginRight: 2 }}
                                 />
