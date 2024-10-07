@@ -102,7 +102,7 @@ app.post('/webhooks', (request, response) => {
                         unit_price: parseFloat(((item.amount / item.quantity) / 100).toFixed(2)),
                     })),
                     total_price: parseFloat((invoice.total / 100).toFixed(2)),
-                    shipping: parseFloat((1.99).toFixed(2)),
+                    shipping: parseFloat(invoice.shipping_cost.amount_total).toFixed(2),
                     invoice: invoice.hosted_invoice_url,
                     discount: 0,
                     order_status: 'pending',
