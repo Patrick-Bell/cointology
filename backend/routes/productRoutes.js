@@ -4,6 +4,7 @@ const Product = require('../models/Product')
 const multer = require('multer')
 const path = require('path')
 const { v4: uuidv4 } = require('uuid')
+const { sendEmailWhenNewLimitedProductReleases } = require('../utils/Email')
  
 
 
@@ -45,6 +46,8 @@ router.post('/add-product', async (req, res) => {
 
         // Save the product to the database
         await newProduct.save();
+        await sendEmailWhenNewLimitedProductReleases(newProduct);
+
 
         // Return a success response
         res.status(201).json({ message: 'Product added successfully', product: newProduct });

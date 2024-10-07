@@ -21,6 +21,75 @@ Email routes (admin)
 require('dotenv').config()
 const nodemailer = require('nodemailer')
 const Orders = require('../models/Order')
+const Products = require('../models/Product')
+const User = require('../models/User')
+
+
+// Function to send email to all users when a new limited product is released
+const sendEmailWhenNewLimitedProductReleases = async (product) => {
+    try {
+        // Fetch all users
+        const users = await User.find();
+
+        // Check if the product is tagged as 'limited'
+        if (product.tags.includes('limited')) {
+
+            // Construct email content including the image
+            let emailContent = `
+                <div style="background-color: #f9f9f9; padding: 20px; font-family: Arial, sans-serif;">
+                    <h2 style="color: #333;">Exciting News! A New Limited Edition Product is Available</h2>
+                    <p style="color: #555;">We're excited to announce the release of a new limited edition product: <strong>${product.name}</strong>.</p>
+                    <p style="color: #555;">Get yours before it's gone! Only limited stock is available.</p>
+                    
+                    <h3 style="color: #333;">Product Details:</h3>
+                    <ul style="color: #555;">
+                        <li><strong>Price:</strong> £${product.price}</li>
+                        <li><strong>Description:</strong> ${product.description ? product.description : 'Limited Stock Available'}</li>
+                        <li><strong>Category:</strong> ${product.category}</li>
+                    </ul>
+
+                    <!-- Image Inclusion -->
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="${product.front_image}" alt="${product.name}" style="max-width: 100%; height: auto; border-radius: 10px;" />
+                    </div>
+
+    
+                    
+                    <p style="color: #888;">Thank you for shopping with us!</p>
+
+                    <footer style="margin-top: 20px; padding: 10px; background-color: #007BFF; color: white; text-align: center; border-radius: 5px;">
+                <p style="margin: 0;">Best Regards,<br>Your Company Name</p>
+                    </footer>
+
+                </div>
+            `;
+
+            // Setup email transporter
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.EMAIL,
+                    pass: process.env.PASS,
+                },
+            });
+
+            // Send the email to each user
+            for (const user of users) {
+                await transporter.sendMail({
+                    from: process.env.EMAIL,
+                    to: user.email,
+                    subject: 'New Limited Product Available!',
+                    html: emailContent,
+                });
+            }
+
+            console.log('Emails sent successfully to all users!');
+        }
+
+    } catch (e) {
+        console.error('Error sending limited product email:', e);
+    }
+};
 
 
 
@@ -107,42 +176,55 @@ const sendEmailToUserAfterOrder = async (orderData) => {
 
 // Function to send email to admin after an order
 const sendEmailToAdminAfterOrder = async (orderData) => {
-
-    try{
-
+    try {
+        // Prepare email content
         const emailContent = `
-        
-        Include:
-        - new order
-        - customer details
-        - order id
-        - coins purchased
-        - price
-        - whether it is a user, or a guess
-        - maybe a link to the page or at least the orders page
-        `
+            <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2>New Order Notification</h2>
+                <p>A new order has been placed:</p>
 
+                <h3>Order Details</h3>
+                <ul>
+                    <li><strong>Order ID:</strong> ${orderData.order_id}</li>
+                    <li><strong>Customer:</strong> ${orderData.name} (${orderData.email})</li>
+                    <li><strong>Coins Purchased:</strong> ${line_items}</li>
+                    <li><strong>Price:</strong> $${price.toFixed(2)}</li>
+                    <li><strong>Account Type:</strong> ${orderData.user ? 'Registered User' : 'Guest'}</li>
+                </ul>
+
+                <p>You can view this order in the admin panel:</p>
+                <a href="https://yourwebsite.com/admin/orders/${orderData.order_id}" style="color: #007bff;">View Order</a>
+                <br>
+                <a href="https://yourwebsite.com/admin/orders" style="color: #007bff;">Go to Orders Page</a>
+
+                <p>Best regards,<br>Your Store</p>
+            </div>
+        `;
+
+        // Set up email transporter
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 user: process.env.EMAIL,
-                pass: process.env.PASS
-            }
-        })
+                pass: process.env.PASS,
+            },
+        });
 
+        // Send the email
         await transporter.sendMail({
             from: process.env.EMAIL,
-            to: process.env.EMAIL,
-            subject: 'A new order!',
-            html: emailContent
-        })
+            to: process.env.EMAIL, // Admin email
+            subject: 'A New Order Has Been Placed!',
+            html: emailContent,
+        });
 
+        console.log('Order notification email sent successfully.');
 
-    }catch(e) {
-
-        console.log()
+    } catch (e) {
+        console.error('Error sending order notification email:', e);
     }
-}
+};
+
 
 
 
@@ -208,44 +290,173 @@ const sendEmailAfterStatusChange = async (data) => {
 };
 
 
+
 const sendWeeklyStockUpdate = async () => {
-    try{
+    try {
+        // Fetch all orders from the database
+        const products = await Products.find();
 
-        const orders = await Orders.find()
+        // Filter orders with stock less than or equal to 10
+        const lowStock = products.filter(product => product.stock <= 10);
+        const numberOfLowProducts = lowStock.length;
 
-        const lowOrders = orders.filter(order => order.stock <= 10)
-        const numberOfLowOrders = lowOrders.length
+        // Constructing the email content with a background color
+        let emailContent = `
+            <div style="background-color: #f4f4f4; padding: 20px; border-radius: 8px;">
+                <h1 style="color: #333;">Weekly Stock Report</h1>
+                <p style="color: #555;">Dear Team,</p>
+        `;
 
-        const today = Date.now()
-        const sevenDaysAgo = new Date(today.getDate() - 7)
+        // Check if there are low stock orders
+        if (numberOfLowProducts > 0) {
+            emailContent += `
+                <p style="color: #555;">Here is the update on the stock levels:</p>
+                <p style="color: #555;">Total Low Stock Items: <strong>${numberOfLowProducts}</strong></p>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <tr>
+                        <th style="border: 1px solid #ccc; padding: 8px; background-color: #eee;">Order ID</th>
+                        <th style="border: 1px solid #ccc; padding: 8px; background-color: #eee;">Stock Level</th>
+                    </tr>
+            `;
 
-        const formattedToday = new Date(today).toLocaleDateString()
-        const formattedSevenDaysAgo = new Date(sevenDaysAgo).toLocaleDateString()
+            // Add each low stock order to the email content
+            lowStock.forEach(product => {
+                emailContent += `
+                    <tr>
+                        <td style="border: 1px solid #ccc; padding: 8px; text-align: center">${product.name}</td>
+                        <td style="border: 1px solid #ccc; padding: 8px; text-align: center">${product.stock}</td>
+                    </tr>
+                `;
+            });
 
-        const emailContent = `
-        
-        `
+            emailContent += `</table>`;
+        } else {
+            // Message for when there are no low stock items
+            emailContent += `
+                <p style="color: #555;">There are currently no items with low stock levels.</p>
+            `;
+        }
 
+        emailContent += `<p style="color: #555;">Regards,<br>Your Inventory Management System</p></div>`;
+
+        // Setup the email transporter
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 user: process.env.EMAIL,
                 pass: process.env.PASS
             }
-        })
+        });
 
-
-
+        // Send the email
         await transporter.sendMail({
             from: process.env.EMAIL,
-            to: process.env.PASS,
+            to: process.env.EMAIL, // Send to your email (or other recipient)
             subject: 'Weekly Stock Report',
             html: emailContent
-        })
+        });
 
-    }catch(e) {
-        console.log(e)
+        console.log('Weekly stock report email sent successfully.');
+
+    } catch (e) {
+        console.error('Error sending email:', e);
     }
-}
+};
 
-module.exports = { sendEmailToAdminAfterOrder, sendEmailToUserAfterOrder, sendEmailAfterStatusChange, sendWeeklyStockUpdate }
+
+
+const sendWeeklyOrdersReport = async () => {
+    try {
+        const today = new Date(); // Current date
+        const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+
+        // Fetch all orders from the database where the order date is within the last 7 days
+        const lastWeekOrders = await Orders.find({
+            order_date: {
+                $gte: sevenDaysAgo,
+                $lte: today
+            }
+        });
+
+        const numberOfOrders = lastWeekOrders.length;
+        const totalIncome = lastWeekOrders.reduce((sum, order) => sum + order.total_price, 0);
+
+        // Build the table rows dynamically
+        let tableRows = '';
+        for (const order of lastWeekOrders) {
+            const orderDate = new Date(order.order_date).toLocaleDateString('en-GB'); // Format the date to DD/MM/YYYY
+            const totalPrice = `£${(order.total_price)}`; // Assuming total_amount is a field in the schema
+            const orderLink = `https://cointology.onrender.com/${order._id}`; // Replace with your order page URL
+
+            tableRows += `
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center">${orderDate}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center">${totalPrice}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center">
+                        <a href="${orderLink}" style="color: #1a73e8; text-decoration: none;">Click Here</a>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Design the email content
+        const emailContent = `
+            <div style="background-color: #f4f4f4; padding: 20px; border-radius: 8px;">
+                <h2>Weekly Orders Report</h2>
+                <p>Here is the summary of the orders for the last 7 days:</p>
+                <p>Start: ${sevenDaysAgo.toLocaleDateString('en-GB')}</p>
+                <p>End: ${today.toLocaleDateString('en-GB')}</p><br>
+                <p><strong>Total Income: £${(totalIncome).toFixed(2)}</strong></p>
+                <p><strong>Total Orders: ${numberOfOrders}</strong></p>
+
+                <table style="border-collapse: collapse; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Date</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Total Price</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Order Link</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+                <br>
+
+                <footer style="margin-top: 20px; padding: 10px; background-color: #007BFF; color: white; text-align: center; border-radius: 5px;">
+                <p style="margin: 0;">Best Regards,<br>Your Company Name</p>
+                    </footer>
+            </div>
+        `;
+
+        // Setup the email transporter
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASS
+            }
+        });
+
+        // Send the email
+        await transporter.sendMail({
+            from: process.env.EMAIL,
+            to: process.env.EMAIL, // Send to your email (or other recipient)
+            subject: 'Weekly Order Report',
+            html: emailContent
+        });
+
+        console.log('Weekly order report email sent successfully.');
+
+    } catch (e) {
+        console.error('Error sending email:', e);
+    }
+};
+
+sendWeeklyOrdersReport();
+
+
+
+// Call the function (for testing purposes)
+
+module.exports = { sendEmailToAdminAfterOrder, sendEmailToUserAfterOrder, sendEmailAfterStatusChange, sendWeeklyStockUpdate, sendEmailWhenNewLimitedProductReleases }

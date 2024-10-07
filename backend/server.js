@@ -13,7 +13,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const verifyUser = require('./middleware/verifyUser')
 const Order = require('./models/Order')
 const { addOrderToDatabase, calculateDeliveryDate, calculateShippingMethod } = require('./utils/UpdateOrder')
-const { sendEmailToUserAfterOrder } = require('./utils/Email')
+const { sendEmailToUserAfterOrder, sendEmailToAdminAfterOrder } = require('./utils/Email')
 
 const app = express();
 
@@ -131,6 +131,7 @@ app.post('/webhooks', (request, response) => {
                 try {
                     await addOrderToDatabase(newOrder);
                     await sendEmailToUserAfterOrder(newOrder)
+                    await sendEmailToAdminAfterOrder(newOrder)
                     console.log('Order saved to database successfully.');
                 } catch (dbError) {
                     console.error('Error saving order to database:', dbError.message);
