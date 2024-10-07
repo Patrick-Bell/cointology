@@ -61,4 +61,4 @@ const updateStockAfterOrder = async (orderData) => {
 }
 
 
-module.exports = { addOrderToDatabase }
+module.exports = { addOrderToDatabase, updateStockAfterOrder }
