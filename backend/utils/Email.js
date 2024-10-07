@@ -65,7 +65,7 @@ const sendEmailToUserAfterOrder = async (orderData) => {
                United Kingdom
             </p>
 
-            <h3 style="color: #444;">Shipping Fee: £${orderData.shipping.toFixed(2)}</h3>
+            <h3 style="color: #444;">Shipping Fee: £${(orderData.shipping / 100).toFixed(2)}</h3>
             <h3 style="color: #444;">Total Price: £${orderData.total_price.toFixed(2)}</h3>
 
             <p>We will notify you as soon as your order is on its way!</p>
