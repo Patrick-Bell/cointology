@@ -16,14 +16,18 @@ Routes to include after an order has been placed
 const calculateShippingMethod = async () => {
     try{
         switch (shipping) {
-            case value:
-                
+            case 0:
+                return 'free'   
                 break;
-        
-            default:
+            case 500:
+                return 'premium'
+                break;
+            case 750:
+                return 'next day'
+                break;
+            default: 'standard'
                 break;
         }
-
 
     }catch(e) {
         console.log(e)

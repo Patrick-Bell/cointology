@@ -79,7 +79,7 @@ const sendEmailToUserAfterOrder = async (orderData) => {
 
         await transporter.sendMail({
             from: process.env.EMAIL,   
-            to: user.email,
+            to: orderData.email,
             subject: 'Thank You for Your Order!',
             html: emailContent
         });
