@@ -110,10 +110,10 @@ app.post('/webhooks', (request, response) => {
                     order_type: 'card',
                     paid: 'paid',
                     shipping_address: {
-                        address_line_1: invoice.customer_address?.line1 || '',
-                        address_line_2: invoice.customer_address?.line2 || '',
-                        city: invoice.customer_address?.city || '',
-                        postal_code: invoice.customer_address?.postal_code || '',
+                        address_line_1: invoice.customer_address.line1 || '',
+                        address_line_2: invoice.customer_address.line2 || '',
+                        city: invoice.customer_address.city || '',
+                        postal_code: invoice.customer_address.postal_code || '',
                         country: 'United Kingdom'
                     },
                     shipping_method: 'standard',
