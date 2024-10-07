@@ -60,13 +60,6 @@ const sendEmailToUserAfterOrder = async (orderData) => {
 
             <h3>Total Price: £${orderData.total_price.toFixed(2)}</h3>
 
-            <h3>Shipping Information:</h3>
-            <p>
-                ${orderData.shipping_address.address_line_1}<br>
-                ${orderData.shipping_address.city}, ${shipping_address.address_line_2}<br>
-                ${orderData.shipping_address.postal_code}
-            </p>
-
             <p>We will notify you as soon as your order is on its way!</p>
             <p>If you have any questions, feel free to reach out.</p>
 

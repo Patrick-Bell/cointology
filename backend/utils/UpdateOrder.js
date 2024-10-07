@@ -9,9 +9,26 @@ Routes to include after an order has been placed
 2. Update the stock
 3. Send email to the customer
 4. Send email to the admin
-
-
+5. Decide what shipping method was used (based on price)
+6. Calculate expected delivery date based on this
 */
+
+const calculateShippingMethod = async () => {
+    try{
+        switch (shipping) {
+            case value:
+                
+                break;
+        
+            default:
+                break;
+        }
+
+
+    }catch(e) {
+        console.log(e)
+    }
+}
 
 
 // Route to add Card (stripe) payment to the database 

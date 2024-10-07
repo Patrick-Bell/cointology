@@ -45,6 +45,22 @@ router.post("/stripe-checkout", verifyUser, async (req, res) => {
                         delivery_estimate: { minimum: { unit: 'business_day', value: 5 }, maximum: { unit: 'business_day', value: 10 } },
                     },
                 },
+                {
+                    shipping_rate_data: {
+                        type: 'fixed_amount',
+                        fixed_amount: { amount: 500, currency: 'gbp' },
+                        display_name: 'Premium Shipping',
+                        delivery_estimate: { minimum: { unit: 'business_day', value: 3 }, maximum: { unit: 'business_day', value: 5 } },
+                    },
+                },
+                {
+                    shipping_rate_data: {
+                        type: 'fixed_amount',
+                        fixed_amount: { amount: 750, currency: 'gbp' },
+                        display_name: 'Next Day Delivery',
+                        delivery_estimate: { minimum: { unit: 'business_day', value: 1 }, maximum: { unit: 'business_day', value: 1 } },
+                    },
+                }
             ],
             phone_number_collection: {
                 enabled: true,
