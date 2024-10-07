@@ -22,8 +22,11 @@ const orderSchema = new mongoose.Schema({
         postal_code: String,
         country: String,
     },
-    shipping_method: { type: String, enum: ['standard', 'express', 'overnight'] },
-    estimated_delivery: { type: Date },
+    shipping_method: { type: String, enum: ['free', 'premium', 'next day', 'standard'] },
+    estimated_delivery: {
+        earliestDate: { type: Date },
+        latestDate: { type: Date }
+    },
     order_message: String, // this is typically used for the cash payment option
     
 })

@@ -13,26 +13,53 @@ Routes to include after an order has been placed
 6. Calculate expected delivery date based on this
 */
 
-const calculateShippingMethod = async () => {
-    try{
+const calculateShippingMethod = async (shipping) => {
+    try {
         switch (shipping) {
             case 0:
-                return 'free'   
-                break;
+                return 'free';
             case 500:
-                return 'premium'
-                break;
+                return 'premium';
             case 750:
-                return 'next day'
-                break;
-            default: 'standard'
-                break;
+                return 'next day';
+            default:
+                return 'standard';
         }
-
-    }catch(e) {
-        console.log(e)
+    } catch (e) {
+        console.log(e);
+        return 'error'; // Optionally return an error message or code
     }
-}
+};
+
+
+const calculateDeliveryDate = async (shippingCost) => {
+    try {
+        const today = new Date();
+        
+        // Use setDate to add days to the current date
+        if (shippingCost === 0) {
+            return {
+                earliestDate: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000), // Add 5 days
+                latestDate: new Date(today.getTime() + 10 * 24 * 60 * 60 * 1000)  // Add 10 days
+            };
+        } else if (shippingCost === 500) {
+            return {
+                earliestDate: new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000), // Add 3 days
+                latestDate: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000)   // Add 5 days
+            };
+        } else if (shippingCost === 750) {
+            return {
+                earliestDate: new Date(today.getTime() + 1 * 24 * 60 * 60 * 1000), // Add 1 day
+                latestDate: new Date(today.getTime() + 1 * 24 * 60 * 60 * 1000)   // Add 1 day
+            };
+        } else {
+            return 'We will keep you updated with your delivery date!';
+        }
+    } catch (e) {
+        console.log(e);
+    }
+};
+
 
 
 // Route to add Card (stripe) payment to the database 
@@ -82,4 +109,4 @@ const updateStockAfterOrder = async (orderData) => {
 }
 
 
-module.exports = { addOrderToDatabase, updateStockAfterOrder }
+module.exports = { addOrderToDatabase, updateStockAfterOrder, calculateDeliveryDate, calculateShippingMethod }

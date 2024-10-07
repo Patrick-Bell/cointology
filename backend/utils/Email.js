@@ -31,7 +31,7 @@ const sendEmailToUserAfterOrder = async (orderData) => {
         // Create a detailed order summary
         const orderSummary = orderData.line_items.map(item => {
             return `
-            <tr>
+            <tr style="text-align: center; border: 1px solid #ccc;" >
                 <td>${item.name}</td>
                 <td>${item.quantity}</td>
                 <td>£${item.unit_price.toFixed(2)}</td>

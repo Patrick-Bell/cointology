@@ -12,7 +12,7 @@ const cookieParser = require('cookie-parser');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const verifyUser = require('./middleware/verifyUser')
 const Order = require('./models/Order')
-const { addOrderToDatabase } = require('./utils/UpdateOrder')
+const { addOrderToDatabase, calculateDeliveryDate, calculateShippingMethod } = require('./utils/UpdateOrder')
 const { sendEmailToUserAfterOrder } = require('./utils/Email')
 
 const app = express();
@@ -89,6 +89,8 @@ app.post('/webhooks', (request, response) => {
             case 'invoice.finalized':
                 const invoice = event.data.object;
                 console.log('Invoice was finalized:', invoice);
+                const shippingMethod = await calculateShippingMethod(invoice.shipping_cost.amount_total)
+                const { earliestDate, latestDate, message } = await calculateDeliveryDate(invoice.shipping_cost.amount_total);
   
                 const newOrder = {
                     name: invoice.customer_name || 'Unknown',
@@ -116,8 +118,11 @@ app.post('/webhooks', (request, response) => {
                         postal_code: invoice.customer_address.postal_code || '',
                         country: 'United Kingdom'
                     },
-                    shipping_method: 'standard',
-                    estimated_delivery: 2,
+                    shipping_method: shippingMethod,
+                    estimated_delivery: {
+                        earliestDate: earliestDate,
+                        latestDate: latestDate,
+                    },                    
                     order_message: invoice.message || ''
                 };
   
