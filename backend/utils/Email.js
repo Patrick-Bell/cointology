@@ -27,30 +27,29 @@ const Orders = require('../models/Order')
 // Function to send email to user after an order
 const sendEmailToUserAfterOrder = async (orderData) => {
     try {
-
         // Create a detailed order summary
         const orderSummary = orderData.line_items.map(item => {
             return `
-            <tr style="text-align: center; border: 1px solid #ccc;" >
-                <td>${item.name}</td>
-                <td>${item.quantity}</td>
-                <td>£${item.unit_price.toFixed(2)}</td>
+            <tr style="text-align: center; border: 1px solid #ccc;">
+                <td style="padding: 10px; border-bottom: 1px solid #ccc;">${item.name}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ccc;">${item.quantity}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ccc;">£${item.unit_price.toFixed(2)}</td>
             </tr>
             `;
         }).join('');
 
         const emailContent = `
-        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-            <h2>Hi ${orderData.name},</h2>
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; background-color: #f4f4f4; padding: 20px; border-radius: 8px;">
+            <h2 style="color: #333;">Hi ${orderData.name},</h2>
             <p>Thank you for your recent order! We are excited to get your items shipped to you.</p>
 
-            <h3>Order Summary:</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <h3 style="color: #444;">Order Summary:</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border-radius: 5px; overflow: hidden;">
                 <thead>
-                    <tr>
-                        <th style="border: 1px solid #ccc; padding: 8px;">Product</th>
-                        <th style="border: 1px solid #ccc; padding: 8px;">Quantity</th>
-                        <th style="border: 1px solid #ccc; padding: 8px;">Price</th>
+                    <tr style="background-color: #007BFF; color: white;">
+                        <th style="padding: 12px; border: 1px solid #ccc; text-align: left;">Product</th>
+                        <th style="padding: 12px; border: 1px solid #ccc; text-align: left;">Quantity</th>
+                        <th style="padding: 12px; border: 1px solid #ccc; text-align: left;">Price</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,22 +57,29 @@ const sendEmailToUserAfterOrder = async (orderData) => {
                 </tbody>
             </table>
 
-            ${orderData.shipping_address.address_line_1}
-            ${orderData.shipping_address.address_line_2}
-            ${orderData.shipping_address.city}
+            <p style="font-weight: bold;">Shipping Address:</p>
+            <p>${orderData.shipping_address.address_line_1}<br>
+               ${orderData.shipping_address.address_line_2 ? orderData.shipping_address.address_line_2 + '<br>' : ''}
+               ${orderData.shipping_address.city}<br>
+               ${orderData.shipping_address.postal_code}<br>
+               United Kingdom
+            </p>
 
-
-            <h3>Total Price: £${orderData.total_price.toFixed(2)}</h3>
+            <h3 style="color: #444;">Shipping Fee: £${orderData.shipping.toFixed(2)}</h3>
+            <h3 style="color: #444;">Total Price: £${orderData.total_price.toFixed(2)}</h3>
 
             <p>We will notify you as soon as your order is on its way!</p>
             <p>If you have any questions, feel free to reach out.</p>
 
             <p>Thank you for shopping with us!</p>
 
-            <p>Best Regards,<br>Your Company Name</p>
+            <footer style="margin-top: 20px; padding: 10px; background-color: #007BFF; color: white; text-align: center; border-radius: 5px;">
+                <p style="margin: 0;">Best Regards,<br>Your Company Name</p>
+            </footer>
         </div>
         `;
 
+        // Send email using nodemailer (this part remains unchanged)
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -83,16 +89,17 @@ const sendEmailToUserAfterOrder = async (orderData) => {
         });
 
         await transporter.sendMail({
-            from: process.env.EMAIL,   
+            from: process.env.EMAIL,
             to: orderData.email,
-            subject: 'Thank You for Your Order!',
+            subject: 'Thank you for your order!',
             html: emailContent
         });
 
     } catch (e) {
-        console.error('Error sending email:', e);
+        console.log(e);
     }
-}
+};
+
 
 
 
