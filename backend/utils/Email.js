@@ -41,15 +41,15 @@ const sendEmailToUserAfterOrder = async (orderData) => {
         const emailContent = `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; background-color: #f4f4f4; padding: 20px; border-radius: 8px;">
             <h2 style="color: #333;">Hi ${orderData.name},</h2>
-            <p>Thank you for your recent order! We are excited to get your items shipped to you.</p>
+            <p>Thank you for your recent order! We are excited to get your items shipped to you. Your order number is <span style="color: #007BFF"> ${orderData.order_id}</span></p>
 
             <h3 style="color: #444;">Order Summary:</h3>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border-radius: 5px; overflow: hidden;">
                 <thead>
-                    <tr style="background-color: #007BFF; color: white;">
-                        <th style="padding: 12px; border: 1px solid #ccc; text-align: left;">Product</th>
-                        <th style="padding: 12px; border: 1px solid #ccc; text-align: left;">Quantity</th>
-                        <th style="padding: 12px; border: 1px solid #ccc; text-align: left;">Price</th>
+                    <tr style="background-color: #007BFF; color: white; text-align: center; border: 1px solid #ccc;">
+                        <th style="padding: 12px">Product</th>
+                        <th style="padding: 12px">Quantity</th>
+                        <th style="padding: 12px">Price</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,6 +64,8 @@ const sendEmailToUserAfterOrder = async (orderData) => {
                ${orderData.shipping_address.postal_code}<br>
                United Kingdom
             </p>
+            <br>
+            <p>If you notice a mistake in your shipping address, please reach out as soon as possible. Once the order is shipped, it will be too late.</p>
 
             <h3 style="color: #444;">Shipping Fee: £${(orderData.shipping / 100).toFixed(2)}</h3>
             <h3 style="color: #444;">Total Price: £${orderData.total_price.toFixed(2)}</h3>
@@ -147,33 +149,43 @@ const sendEmailToAdminAfterOrder = async (orderData) => {
 
 // Function to send email to user after a status change in their order
 const sendEmailAfterStatusChange = async (data) => {
-
-    try{
-
-        let statusText = 'There has been a change in your order status.'
+    try {
+        let statusText = 'There has been a change in your order status. ';
 
         switch (data.order_status) {
             case 'pending':
-            statusText+= 'Your order is now pending. This means that....'
+                statusText += 'Your order is now <strong>pending</strong>. This means that we have received your order, and it is currently being processed. We will notify you once it has been shipped.';
                 break;
-            case 'shipped': 
-            statusText+= 'Your order has now been shipped. This means that...'
+            case 'shipped':
+                statusText += `Your order has now been <strong>shipped</strong>! <br><br>Expected Delivery Date: ${(data.estimated_delivery.latestDate).toLocaleDateString()}. <br><br>To track your package in real time, please click <a href="http://localhost:3001/cart">here</a> and enter your order ID`;
+                break;
             case 'delivery_attempted':
-                statusText+= 'We attempted to deliver your order but...'
+                statusText += 'We attempted to deliver your order but were unable to do so. Please check your delivery address and ensure that someone is available to receive it. If you have any questions, feel free to contact us.';
+                break;
             case 'delivered':
-                statusText+= 'Your order has now been delivered... something about writing reviews etc'
+                statusText += 'Your order has now been <strong>delivered</strong>! We hope you enjoy your purchase. If you have a moment, we would appreciate your feedback on our service. Please consider leaving a review.';
+                break;
             case 'cancelled':
-                statusText+= 'Your order has been cancelled. This means that...'
+                statusText += 'Your order has been <strong>cancelled</strong>. This could be due to various reasons, such as stock availability or customer request. If you believe this is an error, please reach out to our customer service.';
+                break;
             default:
-                statusText+= `There has been a change in your order. For more information, please visit our website and track your package!`
+                statusText += 'There has been a <strong>change</strong> in your order. For more information, please visit our website and track your package!';
                 break;
         }
 
         const emailContent = `
-        Hi ${data.name},
+        <div style="font-family: Arial, sans-serif; line-height: 1.5; background-color: #f9f9f9; padding: 20px; border-radius: 8px;">
+            <h2 style="color: #333;">Hi ${data.name},</h2>
+            <p>${statusText}</p>
+            <p>If you have any further questions or concerns, feel free to reply to this email or contact our customer service team.</p>
+            <p>Thank you for choosing us!</p>
+            
+            <footer style="margin-top: 20px; padding: 10px; background-color: #007BFF; color: white; text-align: center; border-radius: 5px;">
+                <p style="margin: 0;">Best Regards,<br>Your Company Name</p>
+            </footer>
 
-        There has 
-        `
+        </div>
+        `;
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -181,21 +193,19 @@ const sendEmailAfterStatusChange = async (data) => {
                 user: process.env.EMAIL,
                 pass: process.env.PASS
             }
-        })
+        });
 
         await transporter.sendMail({
             from: process.env.EMAIL,
             to: data.email,
-            subject: 'A new order!',
+            subject: 'Order Status Update',
             html: emailContent
-        })
+        });
 
-
-    }catch(e) {
-
-        console.log(e)
+    } catch (e) {
+        console.log(e);
     }
-}
+};
 
 
 const sendWeeklyStockUpdate = async () => {

@@ -23,7 +23,7 @@ import {
     ErrorOutline,
 } from '@mui/icons-material';
 import axios from 'axios';
-
+import { toast } from 'react-toastify';
 // Modal Styling
 const style = {
     position: 'absolute',
@@ -41,6 +41,8 @@ function ShippingModal({ orderId, open, onClose }) {
     const [status, setStatus] = useState(null);
     const [loading, setLoading] = useState(true);
     const [newStatus, setNewStatus] = useState('');
+
+   
 
     // Fetch current shipping status
     useEffect(() => {
@@ -68,11 +70,16 @@ function ShippingModal({ orderId, open, onClose }) {
         try {
             await axios.post(`/api/orders/${orderId}/update-status`, { status: newStatus });
             setStatus(newStatus);
+            console.log('Toast Triggered: Status Changed Successfully'); // Debug line
+            toast.success('Status Changed Successfully');
             onClose();
         } catch (error) {
             console.error('Error updating shipping status:', error);
+            console.log('Toast Triggered: Status Change Failed'); // Debug line
+            toast.error('Status Change Failed');
         }
     };
+    
 
     const statusIcons = {
         pending: <PendingActions color="warning" />,
@@ -91,6 +98,9 @@ function ShippingModal({ orderId, open, onClose }) {
     ];
 
     return (
+        <>
+
+        
         <Modal
             open={open}
             onClose={onClose}
@@ -169,6 +179,7 @@ function ShippingModal({ orderId, open, onClose }) {
                 )}
             </Box>
         </Modal>
+        </>
     );
 }
 

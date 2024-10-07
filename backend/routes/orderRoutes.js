@@ -5,6 +5,7 @@ const User = require('../models/User')
 const Product = require('../models/Product')
 const verifyUser = require('../middleware/verifyUser')
 const { v4: uuidv4 } = require('uuid')
+const { sendEmailAfterStatusChange } = require('../utils/Email')
 
 
 // route to retrieve all orders (admin)
@@ -117,6 +118,8 @@ router.post('/orders/:id/update-status', async (req, res) => {
         order.order_status = status
         
         await order.save()
+
+        await sendEmailAfterStatusChange(order)
 
         res.status(200).json(order)
         

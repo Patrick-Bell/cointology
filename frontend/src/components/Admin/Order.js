@@ -18,6 +18,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ShippingModal from './ShippingModal'; // Import the modal
 import PaymentModal from './PaymentModal';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Order() {
     const [orders, setOrders] = useState([]);
@@ -38,7 +40,7 @@ function Order() {
             }
         };
         fetchOrders();
-    }, []);
+    }, [orders]);
 
     const getStatusColor = (status) => {
         const statusColors = {
@@ -82,6 +84,11 @@ function Order() {
     }
 
     return (
+        <>
+
+        <ToastContainer/>
+
+       
         <Box sx={{ padding: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
             <Typography variant="h4" gutterBottom>
                 Order Details
@@ -146,6 +153,7 @@ function Order() {
                 />
             )}
         </Box>
+        </>
     );
 }
 
