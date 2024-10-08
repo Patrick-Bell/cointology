@@ -14,21 +14,25 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import '../styles/Dashboard.css'
+import SwapVertIcon from '@mui/icons-material/SwapVert';
+import '../styles/Dashboard.css';
 
 function Inventory({ products, handleEdit, handleDelete }) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortPriceOrder, setSortPriceOrder] = useState('asc');
+    const [sortStockOrder, setSortStockOrder] = useState('asc');
+    const [sortedProducts, setSortedProducts] = useState(products); // New state for sorted products
 
     // Function to determine the color based on stock number
     const getStockColor = (stock) => {
         if (stock === 0) {
-            return 'out-of-stock'; // Class name for out of stock
+            return { color: 'red' }; // Out of stock
         } else if (stock > 0 && stock <= 10) {
-            return 'low-stock'; // Class name for low stock
+            return { color: 'orange' }; // Low stock
         } else if (stock > 10 && stock < 20) {
-            return 'medium-stock'; // Class name for medium stock
+            return { color: 'green' }; // Medium stock
         } else {
-            return 'in-stock'; // Class name for in stock
+            return { color: 'green' }; // In stock
         }
     };
 
@@ -37,36 +41,69 @@ function Inventory({ products, handleEdit, handleDelete }) {
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Sorting function for Price
+    const handleSortByPrice = () => {
+        const newSortOrder = sortPriceOrder === 'asc' ? 'desc' : 'asc'; // Toggle order
+        const sorted = [...filteredProducts].sort((a, b) => {
+            return newSortOrder === 'asc' ? a.price - b.price : b.price - a.price;
+        });
+        setSortedProducts(sorted); // Update sorted products state
+        setSortPriceOrder(newSortOrder); // Update sort order state
+    };
+
+    // Sorting function for Stock
+    const handleSortByStock = () => {
+        const newSortOrder = sortStockOrder === 'asc' ? 'desc' : 'asc'; // Toggle order
+        const sorted = [...filteredProducts].sort((a, b) => {
+            return newSortOrder === 'asc' ? a.stock - b.stock : b.stock - a.stock;
+        });
+        setSortedProducts(sorted); // Update sorted products state
+        setSortStockOrder(newSortOrder); // Update sort order state
+    };
+
+    // Use sortedProducts for rendering
     return (
         <Box className="inventory-container">
-            <Box className="search-bar">
-                <TextField
-                    variant="outlined"
-                    label="Search Products"
-                    size="small"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input"
-                />
-            </Box>
-            <TableContainer 
-                component={Paper} 
-                className="table-container" // Use CSS class for container
-            >
+            <TableContainer component={Paper}>
+                <Typography variant="h5" sx={{ p: 2 }}>
+                    Inventory
+                </Typography>
+
+                <Box className="search-bar">
+                    <TextField
+                        variant="outlined"
+                        label="Search Products"
+                        size="small"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        sx={{ width: '98%', m: 1 }} // Full width minus 2px and margin 1 unit
+                    />
+                </Box>
+
+                <Typography sx={{margin: '0 10px'}}>Number of products: <strong>{filteredProducts.length}</strong></Typography>
+
                 <Table className="table" aria-label="inventory table">
                     <TableHead>
                         <TableRow>
-                            <TableCell className='table-id'>ID</TableCell>  {/* Show ID column on all devices */}
+                            <TableCell className='table-id'>ID</TableCell>
                             <TableCell>Picture</TableCell>
-                            <TableCell className="text-center">Stock</TableCell>
-                            <TableCell className="text-center">Price</TableCell>
+                            <TableCell sx={{textAlign: 'center'}}>Stock 
+                                <IconButton onClick={handleSortByStock} sx={{ m: '0 5px' }}>
+                                    <SwapVertIcon />
+                                </IconButton>
+                            </TableCell>
+                            <TableCell sx={{textAlign: 'center'}}>Price
+                                <IconButton onClick={handleSortByPrice} sx={{ m: '0 5px' }}>
+                                    <SwapVertIcon />
+                                </IconButton>
+                            </TableCell>
                             <TableCell align="center">Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filteredProducts.map((product) => (
+                        {(searchTerm ? filteredProducts : sortedProducts).map((product) => (
                             <TableRow key={product.id}>
-                                <TableCell className='table-id'>{product.id}</TableCell>
+                                <TableCell className='table-id'>...{product.id.slice(-6)}</TableCell>
                                 <TableCell>
                                     <img 
                                         src={product.front_image} 
@@ -74,10 +111,10 @@ function Inventory({ products, handleEdit, handleDelete }) {
                                         className="product-image" 
                                     />
                                 </TableCell>
-                                <TableCell className={`text-center ${getStockColor(product.stock)}`}>
+                                <TableCell sx={{textAlign: 'center'}} className="text-center" style={getStockColor(product.stock)}>
                                     {product.stock}
                                 </TableCell>
-                                <TableCell className="text-center">{`£${product.price}`}</TableCell>
+                                <TableCell sx={{textAlign: 'center'}}>{`£${product.price.toFixed(2)}`}</TableCell>
                                 <TableCell align="center">
                                     <IconButton 
                                         color="primary" 

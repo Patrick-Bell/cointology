@@ -5,6 +5,8 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import SellIcon from '@mui/icons-material/Sell';
+import { MonitorHeart, Person } from '@mui/icons-material';
+
 
 const drawerWidth = 240;
 
@@ -46,6 +48,18 @@ const Sidebar = ({ handleDrawerToggle, mobileOpen, handleMenuClick, isMobile }) 
                     <ListItem button onClick={() => handleMenuClick('orders')}>
                         <ListItemIcon><SellIcon /></ListItemIcon>
                         <ListItemText primary="Orders" />
+                    </ListItem>
+                    <ListItem button onClick={() => handleMenuClick('users')}>
+                        <ListItemIcon><Person /></ListItemIcon>
+                        <ListItemText primary="Users" />
+                    </ListItem>
+                    <ListItem button onClick={() => handleMenuClick('mainDash')}>
+                        <ListItemIcon><SellIcon /></ListItemIcon>
+                        <ListItemText primary="Dash" />
+                    </ListItem>
+                    <ListItem button onClick={() => handleMenuClick('favs')}>
+                        <ListItemIcon><MonitorHeart /></ListItemIcon>
+                        <ListItemText primary="Favourites" />
                     </ListItem>
                 </List>
             </Box>

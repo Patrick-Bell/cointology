@@ -479,9 +479,6 @@ const sendWeeklyOrdersReport = async () => {
     }
 };
 
-sendWeeklyOrdersReport();
-
-
 
 // Call the function (for testing purposes)
 

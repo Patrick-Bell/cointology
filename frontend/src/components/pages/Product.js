@@ -148,6 +148,9 @@ function Product() {
 
 
   return (
+    <>
+    <ToastContainer/>
+    
     <Box display="flex" sx={{ fontFamily: 'Arial, sans-serif', height: '100vh' }}>
       <Box
         sx={{
@@ -228,6 +231,7 @@ function Product() {
           {sortedProducts.map((product, i) => {
             // Check if the product is a favourite
             const isFavourite = isProductFavourite(product._id);
+            console.log(isFavourite)
 
             return (
               <Box
@@ -306,8 +310,8 @@ function Product() {
         </Box>
       </Modal>
 
-      <ToastContainer />
     </Box>
+    </>
   );
 }
 

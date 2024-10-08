@@ -16,19 +16,21 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { handleCheckout, handleCashCheckout } from '../../utils/Checkout';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import InsufficientItemsModal from '../InsufficientItems/InsuffcientItemsModal'; // Import your modal component
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 function Cart() {
     const [cartItems, setCartItems] = useState([]);
     const [payBtn, setPayBtn] = useState('Checkout');
-    const [payCashBtn, setPayCashBtn] = useState('Pay By Cash')
+    const [payCashBtn, setPayCashBtn] = useState('Pay By Cash');
     const [loading, setLoading] = useState(false);
     const [notification, setNotification] = useState({ open: false, message: '' });
     const [insufficientItems, setInsufficientItems] = useState([]);
     const [openModal, setOpenModal] = useState(false); // State for modal visibility
     const navigate = useNavigate(); // Initialize useNavigate
 
+    // Load cart items from localStorage on component mount
     useEffect(() => {
         const items = JSON.parse(localStorage.getItem('cartItems')) || [];
         setCartItems(items.map(item => ({
@@ -37,14 +39,15 @@ function Cart() {
         })));
     }, []);
 
+    // Calculate the total price of the items in the cart
     const calculateTotalPrice = () => {
         return cartItems.reduce((total, item) => total + (item.item_total || 0), 0).toFixed(2);
     };
 
+    // Handle checkout process
     const goToCheckout = async () => {
         try {
             const result = await handleCheckout(cartItems, setPayBtn, setCartItems);
-            
             if (result && result.length > 0) {
                 setInsufficientItems(result); // Set insufficient items from the response
                 setOpenModal(true); // Open the modal if there are insufficient items
@@ -54,10 +57,10 @@ function Cart() {
         }
     };
 
+    // Handle cash checkout process
     const goToPayCheckout = async () => {
         try {
             const result = await handleCashCheckout(cartItems, setPayCashBtn);
-            
             if (result && result.length > 0) {
                 setInsufficientItems(result); // Set insufficient items from the response
                 setOpenModal(true); // Open the modal if there are insufficient items
@@ -67,6 +70,7 @@ function Cart() {
         }
     };
 
+    // Remove an item from the cart
     const handleRemoveItem = (itemId) => {
         const updatedItems = cartItems.filter(item => item.id !== itemId);
         setCartItems(updatedItems);
@@ -77,6 +81,7 @@ function Cart() {
         });
     };
 
+    // Update item quantity in the cart
     const handleQuantityChange = (itemId, quantity) => {
         const updatedItems = cartItems.map(item => {
             if (item.id === itemId) {
@@ -91,26 +96,44 @@ function Cart() {
     const handleCloseModal = () => {
         setOpenModal(false); // Close the modal
         setPayBtn('Checkout');
-        setPayCashBtn('Pay By Cash')
+        setPayCashBtn('Pay By Cash');
     };
 
     const handleCloseSnackbar = () => {
         setNotification({ ...notification, open: false });
     };
 
-
     return (
         <Box sx={{ padding: 3 }}>
-            <Typography variant="h4" gutterBottom>
-                Shopping Cart
-            </Typography>
 
+            {/* Conditional rendering for empty cart */}
             {cartItems.length === 0 ? (
-                <Typography variant="h6">
-                    Your cart is empty.
-                </Typography>
-            ) : (
-                <Grid container spacing={2}>
+    <Box
+        sx={{
+            display: 'flex',
+            flexDirection: 'column', // Stack items vertically
+            justifyContent: 'center', // Center vertically
+            alignItems: 'center', // Center horizontally
+            height: 'calc(100vh - 70px)', // Full viewport height minus header height
+            textAlign: 'center', // Center text
+            padding: 2, // Add some padding for spacing
+        }}
+    >
+        <AddShoppingCartIcon sx={{ fontSize: '100px'}} /> {/* Big icon */}
+        <Typography variant="h6">
+            Your cart is empty!
+        </Typography>
+        <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate('/')} // Navigate to the shop page
+            sx={{ marginTop: 2 }} // Add some margin for spacing
+        >
+            Start Shopping
+        </Button>
+    </Box>
+) : (
+                <Grid container spacing={2} marginTop='40px'>
                     {/* Cart Items Section */}
                     <Grid item xs={12} md={8}>
                         <TableContainer component={Paper} elevation={3}>
@@ -204,7 +227,7 @@ function Cart() {
                                     onClick={goToPayCheckout}
                                     sx={{ width: '100%' }}
                                 >
-                                   {payCashBtn}
+                                    {payCashBtn}
                                 </Button>
                             </Box>
                         </Box>

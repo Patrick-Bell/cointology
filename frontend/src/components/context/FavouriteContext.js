@@ -60,7 +60,6 @@ export const FavouriteProvider = ({ children }) => {
     return (
         <>
             <FavouriteContext.Provider value={{ favourites, addToFavourites, removeFromFavourites, fetchFavourites, fetchUserFavourites }}>
-                <ToastContainer />
                 {children}
             </FavouriteContext.Provider>
         </>

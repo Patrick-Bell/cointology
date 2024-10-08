@@ -54,12 +54,14 @@ const stripeRoutes = require('./routes/stripeRoutes');
 const userRoutes = require('./routes/userRoutes');
 const favouriteRoutes = require('./routes/favouriteRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const userOrderRoutes = require('./routes/userOrders')
 
 app.use('/api', productRoutes);
 app.use('/api', stripeRoutes);
 app.use('/api', userRoutes);
 app.use('/api', favouriteRoutes);
 app.use('/api', orderRoutes);
+app.use('/api', userOrderRoutes)
 
 // Webhook route
 app.post('/webhooks', (request, response) => {

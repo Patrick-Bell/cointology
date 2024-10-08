@@ -119,5 +119,35 @@ router.get('/check-auth', verifyUser, (req, res) => {
 });
 
 
+// get all orders
+router.get('/all-users', async (req, res) => {
+    try {
+        const users = await User.find()
+
+        res.status(200).json(users)
+
+    }catch(e) {
+        console.log(e)
+        res.status(500).json({message: e})
+    }
+})
+
+
+// route to get 1 user
+router.get('/user/:id', async (req, res) => {
+    const { id } = req.params
+    try {
+        const user = await User.findById(id).populate('orders')
+
+        console.log(user)
+
+        res.status(200).json(user)
+
+        
+    }catch(e) {
+        console.log(e)
+        res.status(500).json({message: e})
+    }
+})
 
 module.exports = router;

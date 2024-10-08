@@ -13,7 +13,10 @@ import axios from 'axios';
 import Sidebar from './Sidebar';
 import AddProductForm from './AddProductForm';
 import Inventory from './Inventory';
+import Order from './Order'
 import '../styles/Dashboard.css'; // Import your CSS file
+import Users from './Users';
+import MainDash from './MainDash';
 
 // Main Admin Dashboard Component
 const AdminDashboard = () => {
@@ -71,6 +74,12 @@ const AdminDashboard = () => {
                         }
                     }} />
                 );
+            case 'orders':
+                return <Order />
+            case 'users':
+                return <Users />
+            case 'mainDash': 
+            return <MainDash />
             default:
                 return <Typography variant="h6">Please select an option from the sidebar.</Typography>;
         }

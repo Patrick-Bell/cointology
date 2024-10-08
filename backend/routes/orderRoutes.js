@@ -5,7 +5,7 @@ const User = require('../models/User')
 const Product = require('../models/Product')
 const verifyUser = require('../middleware/verifyUser')
 const { v4: uuidv4 } = require('uuid')
-const { sendEmailAfterStatusChange } = require('../utils/Email')
+const { sendEmailAfterStatusChange, sendEmailToAdminAfterOrder, sendEmailToUserAfterOrder } = require('../utils/Email')
 
 
 // route to retrieve all orders (admin)
@@ -173,9 +173,11 @@ router.post('/cash-payment-gateway', verifyUser, async (req, res) => {
         })
 
         const savedOrder = await newOrder.save()
+        await sendEmailToUserAfterOrder(newOrder)
+        await sendEmailToAdminAfterOrder(newOrder)
 
         await User.findOneAndUpdate(
-            { id: user.id }, {$push: { orders: savedOrder._id }}, { new: true }
+            { _id: user.id }, {$push: { orders: savedOrder._id }}, { new: true }
         )
 
         res.status(200).json({ message: `Order Completed!` })
@@ -203,6 +205,32 @@ router.get('/get-image/:name', async (req, res) => {
         res.status(500).json({ message: e })
     }
 })
+
+router.get('/revenue-last-30-days', async (req, res) => {
+    try {
+        const today = new Date();
+        const last30Days = new Date(today);
+        last30Days.setDate(today.getDate() - 30); // Set the date to 30 days ago
+
+        // Fetch orders from the last 30 days
+        const orders = await Order.find({
+            order_date: {
+                $gte: last30Days, // Greater than or equal to the calculated date
+                $lte: today // Less than or equal to today
+            }
+        });
+
+        // Calculate total revenue
+        const totalRevenue = orders.reduce((acc, order) => acc + order.total_price, 0);
+
+        res.status(200).json(totalRevenue)
+
+       
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 
 module.exports = router

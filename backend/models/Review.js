@@ -5,8 +5,11 @@ const reviewSchema = mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     rating_number: { type: Number, min: 1, max: 5 },
+    rating_header: String,
     rating_message: String,
-    date: { type: Date, default: Date.now() }
+    date: { type: Date, default: Date.now() },
+    verified_response: { Boolean: true},
+    helpful_votes: {type: Number, default: 0}
 })
 
 const Review = mongoose.model('Review', reviewSchema)

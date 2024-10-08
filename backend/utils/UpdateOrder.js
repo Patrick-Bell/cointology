@@ -1,5 +1,6 @@
 const Order = require('../models/Order')
 const Product = require('../models/Product')
+const User = require('../models/User')
 
 
 /* 
@@ -71,6 +72,12 @@ const addOrderToDatabase = async (orderData) => {
 
         // Save the new order to the database
         await newOrder.save();
+
+        if (orderData.user !== null) {
+            await User.findOneAndUpdate(
+                { _id: orderData.user }, {$push: { orders: newOrder._id }}, { new: true }
+            )
+        }
 
         // Log success message (optional)
         console.log('Order saved successfully:', newOrder);

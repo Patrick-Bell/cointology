@@ -9,7 +9,7 @@ const userSchema = mongoose.Schema({
     post_code: String,
     phone_number: Number,
     favourites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Favourite' }],
-    reviews: [],
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review'}],
     messages: [],
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
     role: { type: String, default: 'user' }
