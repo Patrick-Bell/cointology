@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
     Box,
     Grid,
+    Alert,
     Typography,
     Button,
     Paper,
@@ -14,10 +15,13 @@ import {
     CircularProgress,
     IconButton,
     Divider,
+    Rating,
+    Avatar
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useCart } from '../context/CartContext'
@@ -30,6 +34,8 @@ const ProductDetail = () => {
     const { id } = useParams();
     const [isFavorite, setIsFavorite] = useState(false); // To manage favorites
     const [mainImage, setMainImage] = useState(""); // To manage the main image
+    const [rating, setRating] = useState(0)
+    const [ratingLength, setRatingLength] = useState(0)
 
     const { addItemToCart } = useCart()
 
@@ -38,7 +44,12 @@ const ProductDetail = () => {
             try {
                 const response = await axios.get(`/api/product-details/${id}`);
                 setProduct(response.data);
+                console.log('product with ratings', response.data)
                 setMainImage(response.data.front_image); // Set initial main image to front image
+                const ratingLength = response.data.ratings.length
+                const rating = response.data.ratings.reduce((acc, pro) => acc + pro.rating_number / ratingLength, 0)
+                setRatingLength(ratingLength)
+                setRating(rating)
             } catch (err) {
                 console.error("Error fetching product:", err);
                 setError("Failed to load product details.");
@@ -121,7 +132,7 @@ const ProductDetail = () => {
 
     if (loading) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
                 <CircularProgress />
             </Box>
         );
@@ -140,7 +151,7 @@ const ProductDetail = () => {
     if (!product) return null;
 
     return (
-        <Box sx={{ padding: 4, marginTop: '60px', bgcolor: '#f5f5f5', borderRadius: 2 }}>
+        <Box sx={{ padding: 4, marginTop: '60px', bgcolor: '#f5f5f5', borderRadius: 2, minHeight: 'calc(100vh - 125px)' }}>
             <Grid container spacing={4} alignItems="flex-start">
                 {/* Product Image Section */}
                 <Grid item xs={12} md={6}>
@@ -171,7 +182,7 @@ const ProductDetail = () => {
                     image={product.front_image}
                     sx={{ 
                         objectFit: 'contain', 
-                        border: mainImage === product.front_image ? '2px solid blue' : '1px solid lightgrey',
+                        border: mainImage === product.front_image ? '2px solid #9c27b0' : '1px solid lightgrey',
                         width: '100%', // Stretch image to full width
                         background: 'white'
             
@@ -191,7 +202,7 @@ const ProductDetail = () => {
                     image={product.back_image}
                     sx={{ 
                         objectFit: 'contain', 
-                        border: mainImage === product.back_image ? '2px solid blue' : '1px solid lightgrey',
+                        border: mainImage === product.back_image ? '2px solid #9c27b0' : '1px solid lightgrey',
                         width: '100%', // Stretch image to full width
                         background: 'white'
                     }}
@@ -206,17 +217,25 @@ const ProductDetail = () => {
                 {/* Product Details Section */}
                 <Grid item xs={12} md={6}>
                     <Paper sx={{ padding: 3, height: '100%', borderRadius: 2 }}>
-                        <Typography variant="h4" gutterBottom>
-                            {product.name}
-                        </Typography>
+                    <Typography variant="h4" gutterBottom>
+            {product.name}
+            <Rating
+                name="one-gold-star"
+                value={1} // Display one gold star
+                max={1} // Set max to 1 to only show one star
+                readOnly
+                size="medium" // Keep the star size small
+                sx={{ color: 'gold', verticalAlign: 'middle', marginLeft: 1, }} // Ensure the star color is gold and space it
+            /> 
+            <Typography variant="body1" component="span" sx={{ marginLeft: 0.5, verticalAlign: 'middle' }}> {/* Use body2 for smaller text */}
+                Average <strong>{(rating).toFixed(1)}</strong> stars from <strong>{ratingLength}</strong> rating(s).
+            </Typography>
+        </Typography>
                         <Typography variant="h6" color="text.secondary">
                             {displayPrice(product)}
                         </Typography>
                         
-                        {/* Product Description moved under price */}
-                        <Typography variant="body1" sx={{ mt: 2 }}>
-                            {product.description}
-                        </Typography>
+                       
 
                         <Typography variant="subtitle1" color="text.secondary" sx={{ mt: 1 }}>
                             Date Added: {new Date(product.date_added).toLocaleDateString()}
@@ -255,16 +274,69 @@ diameter of 40 mm and a weight of 1 ounce, this coin is perfect for both avid co
             </Grid>
 
             {/* Tabs for Reviews */}
-            <AppBar position="static" sx={{ marginTop: 4 }}>
+            <AppBar  position="static" sx={{ marginTop: 4, backgroundColor: 'white', p: 1}}>
                 <Tabs>
-                    <Tab label="Reviews" sx={{ color: 'white' }} />
+                    <Tab label="Reviews" sx={{ color: 'black'}} /> - 
+                    <Alert severity="success">All from verified purchases.</Alert>
                 </Tabs>
             </AppBar>
 
-            <Box sx={{ padding: 2, bgcolor: 'white', borderRadius: 2, boxShadow: 2 }}>
-                <Typography variant="h6">Customer Reviews</Typography>
-                <Typography variant="body2">No reviews yet.</Typography>
-            </Box>
+            <Box sx={{ padding: 2, bgcolor: 'white', boxShadow: 2, maxHeight: 400, overflow: 'auto' }}>
+    {product.ratings && product.ratings.length > 0 ? (
+        <Grid container spacing={2} alignItems='stretch'> {/* This ensures all items stretch */}
+            {product.ratings.map((review, index) => (
+                <Grid item sm={6} xs={12} key={index}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            bgcolor: 'white',
+                            padding: 2,
+                            borderRadius: 2,
+                            boxShadow: 3,
+                            height: 'auto', // Ensures the box takes full height
+                        }}
+                    >
+                        {/* Avatar on the left */}
+                        <Avatar
+                            sx={{
+                                width: 56,
+                                height: 56,
+                                marginRight: 2,
+                            }}
+                        >
+                            {review.userInitials || review.userAvatar} {/* You can replace this with the user's avatar if available */}
+                        </Avatar>
+
+                        {/* Right-side content */}
+                        <Box sx={{ flex: 1 }}> {/* Ensures this box takes the remaining height */}
+                            {/* Star Rating */}
+                            <Rating value={review.rating_number} precision={0.5} readOnly />
+
+                            {/* Review Header */}
+                            <Typography variant="h6" fontWeight="bold">
+                                {review.rating_header}
+                            </Typography>
+
+                            {/* Review Message */}
+                            <Typography variant="body1" paragraph>
+                                {review.rating_message}
+                            </Typography>
+
+                            {/* Review Date */}
+                            <Typography variant="caption" color="text.secondary">
+                                Reviewed on {new Date(review.date).toLocaleDateString()}
+                            </Typography>
+                        </Box>
+                    </Box>
+                </Grid>
+            ))}
+        </Grid>
+    ) : (
+        <Typography>No Customer Reviews</Typography>
+    )}
+</Box>
+
+
         </Box>
     );
 };

@@ -122,8 +122,8 @@ function Order() {
         <>
             <ToastContainer />
             <Box sx={{ padding: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-                <TableContainer component={Paper} sx={{ width: '100%' }}>
-                    <Typography variant="h5" sx={{ p: 2 }}>
+            <TableContainer component={Paper} sx={{ maxHeight: 700 }} stickyHeader>
+            <Typography variant="h5" sx={{ p: 2 }}>
                         Order Details
                     </Typography>
 
@@ -138,7 +138,7 @@ function Order() {
 
                     <Typography sx={{margin: '0 10px'}}>Number of orders: <strong>{filteredOrders.length}</strong></Typography>
 
-                    <Table>
+                    <Table stickyHeader>
                         <TableHead>
                             <TableRow>
                                 <TableCell align="center">ID</TableCell>

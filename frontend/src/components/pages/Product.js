@@ -12,16 +12,23 @@ import {
   IconButton,
   Modal,
   Button,
+  Divider,
+  Tooltip,
 } from '@mui/material';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import SortIcon from '@mui/icons-material/Sort';
 import axios from 'axios';
 import { ToastContainer } from 'react-toastify';
 import { useAuth } from '../context/AuthenticateContext';
+import InfoIcon from '@mui/icons-material/Info';
+import ScrollInView from '../animation/ScrollInView';
+import Footer from '../Reuseable/Footer';
 
 function Product() {
+  const [selectedColors, setSelectedColors] = useState([])
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedRatings, setSelectedRatings] = useState([])
   const [sortOption, setSortOption] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -29,6 +36,7 @@ function Product() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [favourites, setFavourites] = useState([]);
+
 
   const { isUserAuthenticated, checkAuthStatus } = useAuth();
 
@@ -93,8 +101,17 @@ function Product() {
     return <Typography variant="h6" color="error">{error}</Typography>;
   }
 
+
+  const colors = ['bronze', 'silver', 'gold']
+  const ratings = [1, 2, 3, 4, 5]
   const categories = [...new Set(allProducts.map((p) => p.category))];
   const tags = [...new Set(allProducts.flatMap((p) => p.tags))];
+
+
+  const handleColorChange = (e) => {
+    const color = e.target.value
+    setSelectedColors((prev) => prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color ])
+  }
 
   // Handle filtering and sorting
   const handleCategoryChange = (e) => {
@@ -103,6 +120,14 @@ function Product() {
       prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
     );
   };
+
+  const handleRatingChange = (e) => {
+    const rating = Number(e.target.value); // Convert to number
+    console.log(rating);
+    setSelectedRatings((prev) =>
+        prev.includes(rating) ? prev.filter((r) => r !== rating) : [...prev, rating]
+    );
+};
 
   const handleTagChange = (e) => {
     const tag = e.target.value;
@@ -115,14 +140,36 @@ function Product() {
     setSortOption(e.target.value);
   };
 
+
+  // Function to calculate the average rating of a product
+const calculateAverageRating = (ratings) => {
+  if (!Array.isArray(ratings) || ratings.length === 0) return 0; // Handle empty ratings
+
+  const totalRating = ratings.reduce((acc, item) => acc + item.rating_number, 0);
+  return totalRating / ratings.length;
+};
+
+
   // Filter products based on selected filters
   const filteredProducts = allProducts.filter((product) => {
     const categoryMatch =
-      selectedCategories.length === 0 || selectedCategories.includes(product.category);
+        selectedCategories.length === 0 || selectedCategories.includes(product.category);
+    
     const tagMatch =
-      selectedTags.length === 0 || selectedTags.some((tag) => product.tags.includes(tag));
-    return categoryMatch && tagMatch;
-  });
+        selectedTags.length === 0 || selectedTags.some((tag) => product.tags.includes(tag));
+
+    // Check if the product's average rating is equal to or greater than any of the selected ratings
+    const ratingMatch = selectedRatings.length === 0 || selectedRatings.some(selectedRating => {
+        const averageRating = calculateAverageRating(product.ratings);
+        return Math.round(averageRating) === Math.round(selectedRating)
+    });
+
+    const colorMatch = selectedColors.length === 0 || selectedColors.some((color) => product.color.includes(color))
+
+    return categoryMatch && tagMatch && ratingMatch && colorMatch; // Include all matches
+});
+
+
 
   // Sort products based on selected sorting option
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -169,7 +216,8 @@ function Product() {
           Filter Products
         </Typography>
 
-        <Typography variant="subtitle1">Categories</Typography>
+        <ScrollInView direction='left'>
+        <Typography variant="subtitle1"><strong>Categories</strong></Typography>
         {categories.map((category) => (
           <FormControlLabel
             key={category}
@@ -183,33 +231,93 @@ function Product() {
             label={category}
           />
         ))}
+         <Divider/>
 
-        <Typography variant="subtitle1">Tags</Typography>
+
+        <Typography variant="subtitle1"><strong>Tags</strong></Typography>
         {tags.map((tag) => (
+  <FormControlLabel
+    key={tag}
+    control={
+      <Checkbox
+        value={tag}
+        onChange={handleTagChange}
+        checked={selectedTags.includes(tag)}
+        sx={{
+          '&.Mui-checked': {
+            color: 'secondary.main', // Color when checked
+          },
+        }}
+      />
+    }
+    label={tag}
+  />
+))}
+        <Divider/>
+
+
+
+        <Typography sx={{display:'flex', alignItems:'center'}} variant="subtitle1">
+          <strong>Ratings</strong>
+
+            <Tooltip title='Ratings are rounded up' placement='right'>
+            <InfoIcon fontSize='small'/>
+            </Tooltip>
+          </Typography>
+
+
+
+        {ratings.map((rating) => (
+  <FormControlLabel
+    key={rating}
+    control={
+      <Checkbox
+        value={rating}
+        onChange={handleRatingChange}
+        checked={selectedRatings.includes(rating)}
+        sx={{
+          '&.Mui-checked': {
+            color: 'secondary.main', // Color when checked
+          },
+        }}
+      />
+    }
+    label={rating}
+  />
+))}
+        <Divider/>
+
+        <Typography variant="subtitle1"><strong>Colors</strong></Typography>
+        {colors.map((color) => (
           <FormControlLabel
-            key={tag}
+            key={color}
             control={
               <Checkbox
-                value={tag}
-                onChange={handleTagChange}
-                checked={selectedTags.includes(tag)}
+                value={color}
+                onChange={handleColorChange}
+                checked={selectedColors.includes(color)}
               />
             }
-            label={tag}
+            label={color}
           />
         ))}
+         <Divider/>
+         </ScrollInView>
+
+
       </Box>
+
 
       <Box
         sx={{
           flexGrow: 1,
           marginLeft: { xs: 0, sm: '290px' },
-          marginTop: '64px',
-          padding: '20px',
+          marginTop: '100px',
           overflowY: 'auto',
           height: 'calc(100vh - 64px)',
         }}
       >
+
         <Box display="flex" justifyContent="space-between" alignItems="center" margin="0 30px" mb={2}>
           <Typography variant="h6">
             Showing <strong>{filteredProducts.length}</strong>{' '}
@@ -227,6 +335,9 @@ function Product() {
           </FormControl>
         </Box>
 
+
+        
+
         <Box display="flex" flexWrap="wrap" justifyContent="center" padding="20px">
           {sortedProducts.map((product, i) => {
             // Check if the product is a favourite
@@ -234,21 +345,25 @@ function Product() {
             console.log(isFavourite)
 
             return (
+              <ScrollInView direction='top'>
               <Box
                 key={i}
                 sx={{
                   flex: '1 1 300px',
-                  maxWidth: '350px',
                   height: 'auto',
                   margin: '10px',
                 }}
               >
-                <ProductCard product={product} isFavourite={isFavourite} />
+                <ProductCard product={product} isFavourite={isFavourite} products={allProducts} />
               </Box>
+              </ScrollInView>
             );
           })}
         </Box>
+
+
       </Box>
+
 
       <Box
         sx={{
@@ -309,8 +424,8 @@ function Product() {
           <Button onClick={() => setIsSortOpen(false)}>Apply Sort</Button>
         </Box>
       </Modal>
+       </Box>
 
-    </Box>
     </>
   );
 }

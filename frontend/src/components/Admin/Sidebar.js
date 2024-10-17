@@ -5,7 +5,7 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import SellIcon from '@mui/icons-material/Sell';
-import { MonitorHeart, Person } from '@mui/icons-material';
+import { DocumentScanner, MonitorHeart, Person, ReportRounded } from '@mui/icons-material';
 
 
 const drawerWidth = 240;
@@ -16,9 +16,11 @@ const Sidebar = ({ handleDrawerToggle, mobileOpen, handleMenuClick, isMobile }) 
             sx={{
                 width: drawerWidth,
                 flexShrink: 0,
+                border:'none',
                 '& .MuiDrawer-paper': {
                     width: drawerWidth,
                     boxSizing: 'border-box',
+                    border:"none"
                 },
             }}
             variant={isMobile ? "temporary" : "permanent"}
@@ -29,17 +31,13 @@ const Sidebar = ({ handleDrawerToggle, mobileOpen, handleMenuClick, isMobile }) 
             <Toolbar />
             <Box sx={{ overflow: 'auto' }}>
                 <List>
-                    <ListItem button onClick={() => handleMenuClick('dashboard')}>
+                <ListItem button onClick={() => handleMenuClick('mainDash')}>
                         <ListItemIcon><DashboardIcon /></ListItemIcon>
                         <ListItemText primary="Dashboard" />
                     </ListItem>
                     <ListItem button onClick={() => handleMenuClick('add-product')}>
                         <ListItemIcon><AddShoppingCartIcon /></ListItemIcon>
                         <ListItemText primary="Add Product" />
-                    </ListItem>
-                    <ListItem button onClick={() => handleMenuClick('settings')}>
-                        <ListItemIcon><SettingsIcon /></ListItemIcon>
-                        <ListItemText primary="Settings" />
                     </ListItem>
                     <ListItem button onClick={() => handleMenuClick('inventory')}>
                         <ListItemIcon><InventoryIcon /></ListItemIcon>
@@ -53,13 +51,17 @@ const Sidebar = ({ handleDrawerToggle, mobileOpen, handleMenuClick, isMobile }) 
                         <ListItemIcon><Person /></ListItemIcon>
                         <ListItemText primary="Users" />
                     </ListItem>
-                    <ListItem button onClick={() => handleMenuClick('mainDash')}>
-                        <ListItemIcon><SellIcon /></ListItemIcon>
-                        <ListItemText primary="Dash" />
+                    <ListItem button onClick={() => handleMenuClick('reports')}>
+                        <ListItemIcon><DocumentScanner /></ListItemIcon>
+                        <ListItemText primary="Reports" />
                     </ListItem>
-                    <ListItem button onClick={() => handleMenuClick('favs')}>
-                        <ListItemIcon><MonitorHeart /></ListItemIcon>
-                        <ListItemText primary="Favourites" />
+                    <ListItem button onClick={() => handleMenuClick('gen-report')}>
+                        <ListItemIcon><DocumentScanner /></ListItemIcon>
+                        <ListItemText primary="Generate Report" />
+                    </ListItem>
+                    <ListItem button onClick={() => handleMenuClick('settings')}>
+                        <ListItemIcon><SettingsIcon /></ListItemIcon>
+                        <ListItemText primary="Settings" />
                     </ListItem>
                 </List>
             </Box>

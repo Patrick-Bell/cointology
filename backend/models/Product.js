@@ -14,6 +14,7 @@ const productSchema = mongoose.Schema({
     date_added: { type: Date, default: Date.now() },
     ratings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
     return_policy: String,
+    color: { type: String, enum: ['bronze', 'silver', 'gold'] }
 })
 
 const Product = mongoose.model('Product', productSchema)

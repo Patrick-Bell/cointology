@@ -14,6 +14,7 @@ export const AuthenticateProvider = ({ children }) => {
         try {
             const response = await axios.get('/api/check-auth', { withCredentials: true });
             const userData = response.data;
+            console.log(userData)
 
             if (userData?.user) {
                 setUser(userData.user); // Set user state with the entire user object
@@ -46,6 +47,9 @@ export const AuthenticateProvider = ({ children }) => {
         try {
             const response = await axios.post('/api/login', { email, password }, { withCredentials: true });
             const userData = response.data;
+            const message = response.data.message
+            console.log('le message', message)
+            console.log(userData)
 
             if (userData.user) {
                 setUser(userData.user); // Store user information
@@ -59,12 +63,19 @@ export const AuthenticateProvider = ({ children }) => {
                     console.log(`Logged in as user`);
                 }
             }
+
+            return userData
+
         } catch (e) {
             console.error("Login error:", e);
             setIsUserAuthenticated(false);
             setIsAdminAuthenticated(false);
             setUser(null); // Clear user state on login failure
+
+            throw e; // This will allow the catch block in handleSubmit to trigger
+
         }
+
     };
 
     const signout = async () => {

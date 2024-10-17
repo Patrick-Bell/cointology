@@ -57,7 +57,8 @@ const UserDetail = () => {
                             <Typography variant="h6">Account Details</Typography>
                             <Divider sx={{ my: 2 }} />
                             <Typography variant="subtitle1">Role: {user.role}</Typography>
-                            <Typography variant="subtitle1">Date Joined: 07/10/2024</Typography>
+                            <Typography variant="subtitle1">Date Joined: {new Date(user.joined).toLocaleString('en-GB')}</Typography>
+                            <Typography variant="subtitle1">Last Login: {new Date(user.last_login).toLocaleString('en-GB')}</Typography>
                         </CardContent>
                     </Card>
                 </Grid>

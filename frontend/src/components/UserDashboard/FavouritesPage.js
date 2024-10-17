@@ -1,77 +1,112 @@
 import { useEffect } from 'react';
 import { useFavourite } from '../context/FavouriteContext';
 import { useCart } from '../context/CartContext';
-import { Card, CardMedia, CardContent, Typography, IconButton, Box, Button } from '@mui/material';
+import { Card, CardMedia, CardContent, Typography, IconButton, Box, Button, Rating, Stack } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 function FavouritesPage() {
-    const { favourites, removeFromFavourites, fetchUserFavourites } = useFavourite(); // Assuming user data is provided here
+    const { favourites, removeFromFavourites, fetchUserFavourites } = useFavourite();
     const { addItemToCart } = useCart();
 
-    const userFavourites = favourites.favourites
-
+    const userFavourites = favourites.favourites;
 
     useEffect(() => {
         fetchUserFavourites();
-    }, []);
+    }, [removeFromFavourites]);
 
-    const handleRemoveFromFavouries = async (productId) => {
+    const handleRemoveFromFavourites = async (productId) => {
         try {
-            removeFromFavourites(productId)
-            window.location.reload()
-        }catch(e) {
-            console.log(e)
+            removeFromFavourites(productId);
+        } catch (e) {
+            console.log(e);
         }
-    }
-
-    
-
-
+    };
 
     return (
-        <Box sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography variant="h4" sx={{ marginBottom: 2 }}>
-                My Favourites
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
-                {favourites.length === 0 ? (
-                    <Typography variant="h6" sx={{ textAlign: 'center' }}>
-                        You have no favourite items.
-                    </Typography>
+        <Box sx={{ p: 4 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 4 }}>
+                {Array.isArray(userFavourites) && userFavourites.length === 0 ? (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: '100vh',
+                            position: 'fixed',
+                            top: 0,
+                            left: { xs: 0, md: 120 },
+                            width: '100vw',
+                            zIndex: 1000,
+                        }}
+                    >
+                        <Box sx={{ p: 10, background: '', borderRadius: '10px' }}>
+                            <FavoriteIcon fontSize="large" sx={{ fontSize: '100px', color: 'lightgrey', justifyContent:'center', alignItems:'center', display:'flex', margin:'auto auto' }} />
+                            <Typography color="textSecondary">You have no favourite items.</Typography>
+                            <Button
+                            fullWidth
+                            sx={{
+                                margin: '5px 0 0 0',
+                                color: 'black',
+                                borderColor: 'black', // Border color for outlined state
+                                '&:hover': {
+                                    backgroundColor: 'black', // Background color for contained state on hover
+                                    color: 'white', // Text color for contained state on hover
+                                    borderColor: 'black', // Keep border color same on hover
+                                },
+                            }}
+                            variant="outlined" // Initial variant
+                        >
+                            Start Shopping!
+                        </Button>
+                        </Box>
+                    </Box>
                 ) : (
                     Array.isArray(userFavourites) && userFavourites.map((product) => (
                         <Card
                             key={product._id}
                             sx={{
-                                maxWidth: 300,
-                                boxShadow: 3,
-                                borderRadius: 3,
+                                width: 350,
+                                boxShadow: 5,
+                                borderRadius: 4,
                                 overflow: 'hidden',
                                 position: 'relative',
+                                transition: 'transform 0.3s',
+                                '&:hover': {
+                                    transform: 'scale(1.05)',
+                                },
                             }}
                         >
                             <CardMedia
                                 component="img"
-                                height="200"
+                                height="250"
                                 image={product.line_items[0]?.item_image || 'fallback-image-url.jpg'}
                                 alt={product.line_items[0]?.item_name || 'Product'}
                             />
-                            <CardContent sx={{ textAlign: 'center' }}>
-                                <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                            <CardContent sx={{ textAlign: 'center', p: 3 }}>
+                                <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', mb: 2 }}>
                                     {product.line_items[0]?.item_name || 'Unknown Product'}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold', mb: 2 }}>
                                     ${product.line_items[0]?.item_price}
                                 </Typography>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 1 }}>
-                                    <IconButton
-                                        onClick={() => handleRemoveFromFavouries(product._id)}
-                                        color="error"
+
+                                <Box sx={{ display: 'block', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Button 
+                                    sx={{
+                                        backgroundColor: 'red',
+                                        '&:hover': {
+                                            backgroundColor: 'darkred',
+                                        },
+                                    }}
+                                    variant='contained' color='primary' onClick={() => handleRemoveFromFavourites(product._id)}
+                                    fullWidth
+                                    startIcon={<FavoriteIcon />}
                                     >
-                                        <FavoriteIcon />
-                                    </IconButton>
+                                    REMOVE FROM FAVOURITES
+                                    </Button>
                                     <Button
+                                    fullWidth
                                         variant="contained"
                                         color="primary"
                                         onClick={() =>
@@ -81,10 +116,16 @@ function FavouritesPage() {
                                                 price: product.line_items[0]?.item_price,
                                                 quantity: 1,
                                                 front_image: product.line_items[0]?.item_image,
-                                                item_total: (product.line_items[0]?.item_price) * 1,
+                                                item_total: product.line_items[0]?.item_price * 1,
                                             })
                                         }
                                         startIcon={<ShoppingCartIcon />}
+                                        sx={{
+                                            backgroundColor: '#3f51b5',
+                                            '&:hover': {
+                                                backgroundColor: '#32408f',
+                                            },
+                                        }}
                                     >
                                         Add to Cart
                                     </Button>

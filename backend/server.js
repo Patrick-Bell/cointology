@@ -12,7 +12,7 @@ const cookieParser = require('cookie-parser');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const verifyUser = require('./middleware/verifyUser')
 const Order = require('./models/Order')
-const { addOrderToDatabase, calculateDeliveryDate, calculateShippingMethod } = require('./utils/UpdateOrder')
+const { addOrderToDatabase, calculateDeliveryDate, calculateShippingMethod, updateStockAfterOrder } = require('./utils/UpdateOrder')
 const { sendEmailToUserAfterOrder, sendEmailToAdminAfterOrder } = require('./utils/Email')
 
 const app = express();
@@ -55,13 +55,19 @@ const userRoutes = require('./routes/userRoutes');
 const favouriteRoutes = require('./routes/favouriteRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const userOrderRoutes = require('./routes/userOrders')
+const reportRoutes = require('./routes/reportRoutes')
+const reviewRoutes = require('./routes/reviewRoutes')
+const forgotPasswordRoutes = require('./routes/forgotPassword')
 
 app.use('/api', productRoutes);
 app.use('/api', stripeRoutes);
 app.use('/api', userRoutes);
 app.use('/api', favouriteRoutes);
 app.use('/api', orderRoutes);
-app.use('/api', userOrderRoutes)
+app.use('/api', userOrderRoutes);
+app.use('/api', reportRoutes);
+app.use('/api', reviewRoutes);
+app.use('/api', forgotPasswordRoutes);
 
 // Webhook route
 app.post('/webhooks', (request, response) => {
@@ -104,6 +110,7 @@ app.post('/webhooks', (request, response) => {
                         name: item.description || 'Unnamed Item',
                         quantity: item.quantity,
                         unit_price: parseFloat(((item.amount / item.quantity) / 100).toFixed(2)),
+                        reviewed: false
                     })),
                     total_price: parseFloat((invoice.total / 100).toFixed(2)),
                     shipping: parseFloat(invoice.shipping_cost.amount_total).toFixed(2),
@@ -134,6 +141,9 @@ app.post('/webhooks', (request, response) => {
                     await addOrderToDatabase(newOrder);
                     await sendEmailToUserAfterOrder(newOrder)
                     await sendEmailToAdminAfterOrder(newOrder)
+                    await updateStockAfterOrder(newOrder)
+
+                    
                     console.log('Order saved to database successfully.');
                 } catch (dbError) {
                     console.error('Error saving order to database:', dbError.message);

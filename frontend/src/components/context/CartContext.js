@@ -49,6 +49,28 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('cartItems', JSON.stringify(updatedCart)); // Save to local storage
     };
 
+
+     // Remove an item from the cart
+     const handleRemoveItem = (itemId) => {
+        const updatedItems = cartItems.filter(item => item.id !== itemId);
+        console.log('removing item')
+        setCartItems(updatedItems)
+        localStorage.setItem('cartItems', JSON.stringify(updatedItems));
+        
+    };
+
+    // Update item quantity in the cart
+    const handleQuantityChange = (itemId, quantity) => {
+        const updatedItems = cartItems.map(item => {
+            if (item.id === itemId) {
+                return { ...item, quantity: quantity, item_total: item.price * quantity };
+            }
+            return item;
+        });
+        setCartItems(updatedItems);
+        localStorage.setItem('cartItems', JSON.stringify(updatedItems));
+    };
+
     // Function to checkout
     const checkout = () => {
         if (cartItems.length === 0) {
@@ -64,9 +86,13 @@ export const CartProvider = ({ children }) => {
         localStorage.removeItem('cartItems');
     };
 
+    const getTotalQuantity = () => {
+        return cartItems.reduce((total, item) => total + item.quantity, 0)
+    }
+
     // Provide context values
     return (
-        <CartContext.Provider value={{ cartItems, addItemToCart, removeItemFromCart, checkout }}>
+        <CartContext.Provider value={{ cartItems, addItemToCart, removeItemFromCart, checkout, getTotalQuantity, handleQuantityChange, handleRemoveItem}}>
             {children}
         </CartContext.Provider>
     );

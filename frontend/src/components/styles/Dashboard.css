@@ -75,3 +75,26 @@
 }
 
 
+
+
+
+
+.footer-list{
+    color: white;
+    text-decoration: none !important;
+    text-transform: none;
+    list-style: none;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+.footer-list:hover{
+    transform: translatex(5px);
+}
+
+
+/* for the nav bar */
+.nav{
+    text-decoration: none;
+    color: black;
+}

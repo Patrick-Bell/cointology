@@ -11,7 +11,7 @@ const { sendEmailWhenNewLimitedProductReleases } = require('../utils/Email')
 // route to get all products
 router.get('/products', async (req, res) => {
     try{
-        const products = await Product.find()
+        const products = await Product.find().populate('ratings')
 
         return res.status(200).json(products)
 
@@ -27,7 +27,7 @@ router.post('/add-product', async (req, res) => {
         console.log('Received Data:', req.body); // Log the incoming data
 
         // Extract product information
-        const { name, description, price, other_price, category, stock, tags, front_image, back_image } = req.body;
+        const { name, description, price, other_price, category, stock, tags, color, front_image, back_image } = req.body;
 
         // Create a new product object
         const newProduct = new Product({
@@ -39,6 +39,7 @@ router.post('/add-product', async (req, res) => {
             category,
             stock,
             tags: tags ? JSON.parse(tags) : [], // Parse tags if they exist
+            color,
             front_image,
             back_image,
             ratings: [],
@@ -108,7 +109,7 @@ router.get('/product-details/:id', async (req, res) => {
     const { id } = req.params
     try {
 
-        const product = await Product.findOne({ id: id })
+        const product = await Product.findOne({ id: id }).populate('ratings')
 
         console.log('product found', product)
 
@@ -123,13 +124,14 @@ router.get('/product-details/:id', async (req, res) => {
 
 // route to complete an edit product
 router.post('/edit-product/:id', async (req, res) => {
-    const productId = req.params.id
-    const { productData } = req.body
+    const { id } = req.params
+    const { updatedProduct } = req.body
+    console.log(updatedProduct)
     try{
 
         const product = await Product.findOneAndUpdate(
-            { id: productId },
-            { $set: productData },
+            { id: id },
+            { $set: updatedProduct },
             { new: true }
         )
 

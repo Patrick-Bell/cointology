@@ -11,57 +11,80 @@ import {
     Box,
     TextField,
     Typography,
+    CircularProgress,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
+import EditProductModal from './EditProductModal';
 import '../styles/Dashboard.css';
+import axios from 'axios';
 
-function Inventory({ products, handleEdit, handleDelete }) {
+function Inventory({ products, handleDelete }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortPriceOrder, setSortPriceOrder] = useState('asc');
     const [sortStockOrder, setSortStockOrder] = useState('asc');
-    const [sortedProducts, setSortedProducts] = useState(products); // New state for sorted products
+    const [sortedProducts, setSortedProducts] = useState(products);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [loading, setLoading] = useState(false); // Loading state
 
-    // Function to determine the color based on stock number
+
+    const handleEditProduct = (productId) => {
+        const productToEdit = products.find(product => product.id === productId);
+        setSelectedProduct(productToEdit);
+        setEditModalOpen(true);
+    };
+
+    const handleSave = async (updatedProduct) => {
+        setLoading(true); // Set loading to true
+        console.log(updatedProduct)
+        try {
+            const response = await axios.post(`/api/edit-product/${selectedProduct.id}`, { updatedProduct });
+            console.log(response.data);
+            // Here you could also update your local product state if necessary
+        } catch (error) {
+            console.error('Error updating product:', error);
+        } finally {
+            setLoading(false); // Set loading to false after the operation
+            setEditModalOpen(false); // Close the modal
+        }
+    };
+
     const getStockColor = (stock) => {
         if (stock === 0) {
             return { color: 'red' }; // Out of stock
         } else if (stock > 0 && stock <= 10) {
             return { color: 'orange' }; // Low stock
         } else if (stock > 10 && stock < 20) {
-            return { color: 'green' }; // Medium stock
+            return { color: 'gold' }; // Medium stock
         } else {
             return { color: 'green' }; // In stock
         }
     };
 
-    // Filter products based on the search term
     const filteredProducts = products.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Sorting function for Price
     const handleSortByPrice = () => {
-        const newSortOrder = sortPriceOrder === 'asc' ? 'desc' : 'asc'; // Toggle order
+        const newSortOrder = sortPriceOrder === 'asc' ? 'desc' : 'asc';
         const sorted = [...filteredProducts].sort((a, b) => {
             return newSortOrder === 'asc' ? a.price - b.price : b.price - a.price;
         });
-        setSortedProducts(sorted); // Update sorted products state
-        setSortPriceOrder(newSortOrder); // Update sort order state
+        setSortedProducts(sorted);
+        setSortPriceOrder(newSortOrder);
     };
 
-    // Sorting function for Stock
     const handleSortByStock = () => {
-        const newSortOrder = sortStockOrder === 'asc' ? 'desc' : 'asc'; // Toggle order
+        const newSortOrder = sortStockOrder === 'asc' ? 'desc' : 'asc';
         const sorted = [...filteredProducts].sort((a, b) => {
             return newSortOrder === 'asc' ? a.stock - b.stock : b.stock - a.stock;
         });
-        setSortedProducts(sorted); // Update sorted products state
-        setSortStockOrder(newSortOrder); // Update sort order state
+        setSortedProducts(sorted);
+        setSortStockOrder(newSortOrder);
     };
 
-    // Use sortedProducts for rendering
     return (
         <Box className="inventory-container">
             <TableContainer component={Paper}>
@@ -76,23 +99,27 @@ function Inventory({ products, handleEdit, handleDelete }) {
                         size="small"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        sx={{ width: '98%', m: 1 }} // Full width minus 2px and margin 1 unit
+                        sx={{ width: '98%', m: 1 }}
                     />
                 </Box>
 
-                <Typography sx={{margin: '0 10px'}}>Number of products: <strong>{filteredProducts.length}</strong></Typography>
+                <Typography sx={{ margin: '0 10px' }}>
+                    Number of products: <strong>{filteredProducts.length}</strong>
+                </Typography>
 
                 <Table className="table" aria-label="inventory table">
                     <TableHead>
                         <TableRow>
                             <TableCell className='table-id'>ID</TableCell>
                             <TableCell>Picture</TableCell>
-                            <TableCell sx={{textAlign: 'center'}}>Stock 
+                            <TableCell sx={{ textAlign: 'center' }}>
+                                Stock
                                 <IconButton onClick={handleSortByStock} sx={{ m: '0 5px' }}>
                                     <SwapVertIcon />
                                 </IconButton>
                             </TableCell>
-                            <TableCell sx={{textAlign: 'center'}}>Price
+                            <TableCell sx={{ textAlign: 'center' }}>
+                                Price
                                 <IconButton onClick={handleSortByPrice} sx={{ m: '0 5px' }}>
                                     <SwapVertIcon />
                                 </IconButton>
@@ -111,14 +138,14 @@ function Inventory({ products, handleEdit, handleDelete }) {
                                         className="product-image" 
                                     />
                                 </TableCell>
-                                <TableCell sx={{textAlign: 'center'}} className="text-center" style={getStockColor(product.stock)}>
+                                <TableCell sx={{ textAlign: 'center' }} className="text-center" style={getStockColor(product.stock)}>
                                     {product.stock}
                                 </TableCell>
-                                <TableCell sx={{textAlign: 'center'}}>{`£${product.price.toFixed(2)}`}</TableCell>
+                                <TableCell sx={{ textAlign: 'center' }}>{`£${product.price.toFixed(2)}`}</TableCell>
                                 <TableCell align="center">
                                     <IconButton 
                                         color="primary" 
-                                        onClick={() => handleEdit(product.id)}
+                                        onClick={() => handleEditProduct(product.id)}
                                         aria-label="edit"
                                     >
                                         <EditIcon />
@@ -135,7 +162,15 @@ function Inventory({ products, handleEdit, handleDelete }) {
                         ))}
                     </TableBody>
                 </Table>
+                {loading && <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%' }} />}
             </TableContainer>
+
+            <EditProductModal
+                open={editModalOpen}
+                handleClose={() => setEditModalOpen(false)}
+                product={selectedProduct}
+                handleSave={handleSave} // Pass the function itself
+            />
         </Box>
     );
 }

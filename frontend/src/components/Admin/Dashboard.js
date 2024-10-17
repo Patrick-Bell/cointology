@@ -17,11 +17,14 @@ import Order from './Order'
 import '../styles/Dashboard.css'; // Import your CSS file
 import Users from './Users';
 import MainDash from './MainDash';
+import Reports from './Reports';
+import GenerateReport from './GenerateReport'
+
 
 // Main Admin Dashboard Component
 const AdminDashboard = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [currentView, setCurrentView] = useState('add-product');
+    const [currentView, setCurrentView] = useState('mainDash');
     const [product, setProduct] = useState({
         name: '',
         price: '',
@@ -80,6 +83,10 @@ const AdminDashboard = () => {
                 return <Users />
             case 'mainDash': 
             return <MainDash />
+            case 'reports':
+            return <Reports />
+            case 'gen-report':
+            return <GenerateReport />
             default:
                 return <Typography variant="h6">Please select an option from the sidebar.</Typography>;
         }

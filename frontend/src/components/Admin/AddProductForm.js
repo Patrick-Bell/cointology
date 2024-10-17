@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Chip, MenuItem, TextField, Typography } from '@mui/material';
+import { Box, Button, Chip, MenuItem, TextField, Typography, Paper } from '@mui/material';
 import axios from 'axios';
 
 const AddProductForm = () => {
@@ -12,6 +12,7 @@ const AddProductForm = () => {
         front_image: '',  // Changed to string for URL
         back_image: '',   // Changed to string for URL
         category: '',
+        color: '',
         tags: [],
     });
 
@@ -44,6 +45,7 @@ const AddProductForm = () => {
             front_image: product.front_image,
             back_image: product.back_image,
             category: product.category,
+            color: product.color,
             tags: JSON.stringify(product.tags), // Send as string
         };
     
@@ -76,6 +78,8 @@ const AddProductForm = () => {
     
 
     return (
+        <Paper elevation={3} sx={{p: 2}}>
+            <Typography variant='h4'>Add Product</Typography>
         <form noValidate autoComplete="off">
             <TextField
                 label="Product Name"
@@ -177,6 +181,22 @@ const AddProductForm = () => {
                 <MenuItem value="potter">Potter</MenuItem>
             </TextField>
 
+            <TextField
+                select
+                label="Color"
+                name="color"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                InputLabelProps={{ shrink: true }}
+                value={product.color}
+                onChange={handleInputChange}
+            >
+                <MenuItem value="bronze">Bronze</MenuItem>
+                <MenuItem value="silver">Silver</MenuItem>
+                <MenuItem value="gold">Gold</MenuItem>
+            </TextField>
+
             <Typography variant="subtitle1" sx={{ mt: 2 }}>Tags:</Typography>
             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
                 {['sale', 'limited', 'new', 'selling fast'].map((tag) => (
@@ -187,7 +207,7 @@ const AddProductForm = () => {
                         variant={product.tags.includes(tag) ? 'filled' : 'outlined'}
                         sx={{
                             cursor: 'pointer',
-                            ...(product.tags.includes(tag) ? { backgroundColor: '#1976d2', color: '#fff' } : {})
+                            ...(product.tags.includes(tag) ? { backgroundColor: '#9c27b0', color: '#fff' } : {})
                         }}
                     />
                 ))}
@@ -197,6 +217,7 @@ const AddProductForm = () => {
                 Add Product
             </Button>
         </form>
+        </Paper>
     );
 };
 

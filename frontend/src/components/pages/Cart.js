@@ -19,9 +19,11 @@ import { handleCheckout, handleCashCheckout } from '../../utils/Checkout';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import InsufficientItemsModal from '../InsufficientItems/InsuffcientItemsModal'; // Import your modal component
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useCart } from '../context/CartContext';
+import ScrollInView from '../animation/ScrollInView'
 
 function Cart() {
-    const [cartItems, setCartItems] = useState([]);
+    const [item, setCartItems] = useState([])
     const [payBtn, setPayBtn] = useState('Checkout');
     const [payCashBtn, setPayCashBtn] = useState('Pay By Cash');
     const [loading, setLoading] = useState(false);
@@ -30,14 +32,7 @@ function Cart() {
     const [openModal, setOpenModal] = useState(false); // State for modal visibility
     const navigate = useNavigate(); // Initialize useNavigate
 
-    // Load cart items from localStorage on component mount
-    useEffect(() => {
-        const items = JSON.parse(localStorage.getItem('cartItems')) || [];
-        setCartItems(items.map(item => ({
-            ...item,
-            item_total: item.item_total || (item.price * item.quantity),
-        })));
-    }, []);
+    const { cartItems, handleQuantityChange, handleRemoveItem } = useCart()
 
     // Calculate the total price of the items in the cart
     const calculateTotalPrice = () => {
@@ -70,28 +65,6 @@ function Cart() {
         }
     };
 
-    // Remove an item from the cart
-    const handleRemoveItem = (itemId) => {
-        const updatedItems = cartItems.filter(item => item.id !== itemId);
-        setCartItems(updatedItems);
-        localStorage.setItem('cartItems', JSON.stringify(updatedItems));
-        setNotification({
-            open: true,
-            message: 'Item removed from cart.',
-        });
-    };
-
-    // Update item quantity in the cart
-    const handleQuantityChange = (itemId, quantity) => {
-        const updatedItems = cartItems.map(item => {
-            if (item.id === itemId) {
-                return { ...item, quantity: quantity, item_total: item.price * quantity };
-            }
-            return item;
-        });
-        setCartItems(updatedItems);
-        localStorage.setItem('cartItems', JSON.stringify(updatedItems));
-    };
 
     const handleCloseModal = () => {
         setOpenModal(false); // Close the modal
@@ -211,6 +184,7 @@ function Cart() {
                             <Typography variant="h6" gutterBottom>
                                 Total: <strong>${calculateTotalPrice()}</strong>
                             </Typography>
+                            <ScrollInView direction='top'>
                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <Button 
                                     variant="contained" 
@@ -230,6 +204,7 @@ function Cart() {
                                     {payCashBtn}
                                 </Button>
                             </Box>
+                            </ScrollInView>
                         </Box>
                     </Grid>
                 </Grid>

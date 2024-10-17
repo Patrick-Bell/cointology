@@ -108,7 +108,7 @@ const sendEmailToUserAfterOrder = async (orderData) => {
         }).join('');
 
         const emailContent = `
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; background-color: #f4f4f4; padding: 20px; border-radius: 8px;">
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; background-color: ##f9f9f9;; padding: 20px; border-radius: 8px;">
             <h2 style="color: #333;">Hi ${orderData.name},</h2>
             <p>Thank you for your recent order! We are excited to get your items shipped to you. Your order number is <span style="color: #007BFF"> ${orderData.order_id}</span></p>
 
@@ -125,6 +125,12 @@ const sendEmailToUserAfterOrder = async (orderData) => {
                     ${orderSummary}
                 </tbody>
             </table>
+            <table>
+            <tr>
+            <td>Shipping</td>
+            <td>£${orderData.shipping > 2 ? (orderData.shipping / 100).toFixed(2) : orderData.shipping}</td>
+            </tr>
+            </table>
 
             <p style="font-weight: bold;">Shipping Address:</p>
             <p>${orderData.shipping_address.address_line_1}<br>
@@ -133,11 +139,12 @@ const sendEmailToUserAfterOrder = async (orderData) => {
                ${orderData.shipping_address.postal_code}<br>
                United Kingdom
             </p>
-            <br>
+    
             <p>If you notice a mistake in your shipping address, please reach out as soon as possible. Once the order is shipped, it will be too late.</p>
 
-            <h3 style="color: #444;">Shipping Fee: £${(orderData.shipping / 100).toFixed(2)}</h3>
+            <div style="padding: 10px; background-color: #007BFF; color: white;">
             <h3 style="color: #444;">Total Price: £${orderData.total_price.toFixed(2)}</h3>
+            </div>
 
             <p>We will notify you as soon as your order is on its way!</p>
             <p>If you have any questions, feel free to reach out.</p>
@@ -265,7 +272,7 @@ const sendEmailAfterStatusChange = async (data) => {
                 statusText += 'Your order is now <strong>pending</strong>. This means that we have received your order, and it is currently being processed. We will notify you once it has been shipped.';
                 break;
             case 'shipped':
-                statusText += `Your order has now been <strong>shipped</strong>! <br><br>Expected Delivery Date: ${(data.estimated_delivery.latestDate).toLocaleDateString()}. <br><br>To track your package in real time, please click <a href="http://localhost:3001/cart">here</a> and enter your order ID`;
+                statusText += `Your order has now been <strong>shipped</strong>! <br><br>Expected Delivery Date: ${ data.order_type === 'card' ? (data.estimated_delivery.latestDate).toLocaleDateString('en-GB') : '2-3 days'}. <br><br>To track your package in real time, please click <a href="http://localhost:3001/cart">here</a> and enter your order ID`;
                 break;
             case 'delivery_attempted':
                 statusText += 'We attempted to deliver your order but were unable to do so. Please check your delivery address and ensure that someone is available to receive it. If you have any questions, feel free to contact us.';
@@ -282,7 +289,7 @@ const sendEmailAfterStatusChange = async (data) => {
         }
 
         const emailContent = `
-        <div style="font-family: Arial, sans-serif; line-height: 1.5; background-color: #f9f9f9; padding: 20px; border-radius: 8px;">
+        <div style="font-family: Arial, sans-serif; line-height: 1.5; background-color: #f9f9f9;; padding: 20px; border-radius: 8px;">
             <h2 style="color: #333;">Hi ${data.name},</h2>
             <p>${statusText}</p>
             <p>If you have any further questions or concerns, feel free to reply to this email or contact our customer service team.</p>
@@ -480,6 +487,234 @@ const sendWeeklyOrdersReport = async () => {
 };
 
 
+const emailToUserAfterRegistration = async (user) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASS,
+            },
+        });
+
+        const emailContent = `
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; background: #f9f9f9">
+            <h1 style="color: #9c27b0; text-align: center;">Welcome to Cointology, ${user.username}!</h1>
+            
+            <p>Dear ${user.username},</p>
+            
+            <p>We're thrilled to welcome you to <strong>Cointology</strong>, your trusted marketplace for rare and vintage coins!</p>
+            
+            <p>As a new member, you now have access to our carefully curated collection of coins from around the world. Whether you're a seasoned collector or just starting your journey, Cointology has something for everyone.</p>
+            
+            <p>Here are some of the benefits you can enjoy as a valued member:</p>
+            <ul style="color: #9c27b0;">
+                <li>Access to all orders</li>
+                <li>Add items to your favourites</li>
+                <li>Track your package in real time</li>
+                <li>Exceptional customer support for all your inquiries</li>
+            </ul>
+            
+            <p>To get started, simply log in and browse our extensive selection of coins. We're confident you'll find something truly special!</p>
+
+            <p>If you have any questions or need assistance, our support team is always ready to help. Feel free to contact us at <a href="mailto:support@cointology.com" style="color: #9c27b0;">support@cointology.com</a>.</p>
+            
+            <p>Thank you for choosing Cointology. We look forward to being part of your collecting journey!</p>
+            
+            <p>Warm regards,<br/>
+            <span style="color: #9c27b0; font-weight: bold;">The Cointology Team</span></p>
+            
+            <hr style="border-top: 1px solid #9c27b0;">
+            
+            <p style="font-size: 0.9em; color: #777;">This is an automated email. Please do not reply. For any inquiries, contact us at <a href="mailto:support@cointology.com" style="color: #9c27b0;">support@cointology.com</a>.</p>
+        </div>
+        `;
+
+        await transporter.sendMail({
+            to: user.email,
+            from: process.env.EMAIL,
+            subject: 'Welcome to Cointology!',
+            html: emailContent,
+        });
+
+    } catch (e) {
+        console.log(e);
+    }
+};
+
+
+const emailToAdminAfterRegistration = async (user) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASS,
+            },
+        });
+
+        // Email content for the admin
+        const emailContent = `
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; background: #f9f9f9">
+            <h2 style="color: #9c27b0; text-align: center;">New User Registration Notification</h2>
+            
+            <p>Dear Admin,</p>
+            
+            <p>A new user has just registered on <strong>Cointology</strong>. Here are their details:</p>
+            
+            <ul>
+                <li><strong>Username:</strong> ${user.username}</li>
+                <li><strong>Email:</strong> ${user.email}</li>
+                <li><strong>Registration Date:</strong> ${new Date().toLocaleString('en-GB')}</li>
+            </ul>
+            
+            <p>Please verify their account and welcome them to the platform if needed.</p>
+
+            <p>Best regards,<br/>
+            <span style="color: #9c27b0;">Cointology Registration System</span></p>
+        </div>
+        `;
+
+        // Send email to the admin
+        await transporter.sendMail({
+            to: process.env.EMAIL,  // Admin's email address from environment variables
+            from: process.env.EMAIL,
+            subject: 'New User Registered!',
+            html: emailContent,
+        });
+
+    } catch (e) {
+        console.log(e);
+    }
+};
+
+
+const sendVerificationCodeEmail = async (user, verification) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASS
+            }
+        });
+
+        const emailContent = `
+        <div style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px; border-radius: 8px;">
+            <div style="max-width: 600px; margin: auto; background-color: #9c27b0; color: white; border-radius: 8px; padding: 20px;">
+                <h2 style="text-align: center;">Password Reset Verification</h2>
+                <p>Hi ${user.name || ''},</p>
+                <p>We received a request to reset your password. Please use the verification code below to complete your request:</p>
+                <h3 style="text-align: center; font-size: 24px; margin: 20px 0;">${verification}</h3>
+                <p>If you did not request a password reset, please ignore this email.</p>
+                <p>Thank you for your attention.</p>
+            </div>
+            <footer style="text-align: center; margin-top: 20px;">
+                <p style="color: #9c27b0;">&copy; ${new Date().getFullYear()} Your Company Name. All rights reserved.</p>
+                <p>If you have any questions, feel free to contact us at <a href="mailto:support@yourcompany.com" style="color: #9c27b0; text-decoration: none;">support@yourcompany.com</a>.</p>
+            </footer>
+        </div>
+        `;
+
+        await transporter.sendMail({
+            from: process.env.EMAIL,
+            to: user.email,
+            subject: 'Password Reset: Verification',
+            html: emailContent
+        });
+
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+
+
+const sendResetPasswordEmail = async (email, link) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASS
+            }
+        });
+
+        const emailContent = `
+        <div style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px; border-radius: 8px;">
+            <div style="max-width: 600px; margin: auto; background-color: #9c27b0; color: white; border-radius: 8px; padding: 20px;">
+                <h2 style="text-align: center;">Password Reset Request</h2>
+                <p>Hi,</p>
+                <p>We received a request to reset your password. If you did not make this request, you can safely ignore this email.</p>
+                <p>To reset your password, please click the link below:</p>
+                <p style="text-align: center;">
+                    <a href="http://localhost:3001/confirm-password/${link}" style="background-color: white; color: #9c27b0; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
+                </p>
+                <p>This link will expire in 10 minutes. Please ensure you reset your password within this time frame.</p>
+                <p>Thank you!</p>
+            </div>
+            <footer style="text-align: center; margin-top: 20px;">
+                <p style="color: #9c27b0;">&copy; ${new Date().getFullYear()} Your Company Name. All rights reserved.</p>
+                <p>If you have any questions, feel free to contact us at <a href="mailto:support@yourcompany.com" style="color: #9c27b0; text-decoration: none;">support@yourcompany.com</a>.</p>
+            </footer>
+        </div>
+        `;
+
+        await transporter.sendMail({
+            from: process.env.EMAIL,
+            to: email,
+            subject: 'Password Reset Email',
+            html: emailContent
+        });
+
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+const sendConfirmationPasswordChangeEmail = async (email) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASS
+            }
+        });
+
+        const emailContent = `
+        <div style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px; border-radius: 8px;">
+            <div style="max-width: 600px; margin: auto; background-color: #9c27b0; color: white; border-radius: 8px; padding: 20px;">
+                <h2 style="text-align: center;">Password Change Confirmation</h2>
+                <p>Hi,</p>
+                <p>Your password has been successfully changed.</p>
+                <p>If you did not authorize this change, please <strong>contact our support team immediately</strong> as your account may be at risk.</p>
+                <p style="text-align: center;">
+                    <a href="mailto:support@yourcompany.com" style="background-color: white; color: #9c27b0; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Contact Support</a>
+                </p>
+                <p>Thank you for using our services!</p>
+            </div>
+            <footer style="text-align: center; margin-top: 20px;">
+                <p style="color: #9c27b0;">&copy; ${new Date().getFullYear()} Your Company Name. All rights reserved.</p>
+                <p>If you need any further assistance, feel free to reach out to us at <a href="mailto:support@yourcompany.com" style="color: #9c27b0; text-decoration: none;">support@yourcompany.com</a>.</p>
+            </footer>
+        </div>
+        `;
+
+        await transporter.sendMail({
+            from: process.env.EMAIL,
+            to: email,
+            subject: 'Password Changed Successfully',
+            html: emailContent
+        });
+
+    } catch (e) {
+        console.log(e);
+    }
+};
+
+
+
 // Call the function (for testing purposes)
 
-module.exports = { sendEmailToAdminAfterOrder, sendEmailToUserAfterOrder, sendEmailAfterStatusChange, sendWeeklyStockUpdate, sendEmailWhenNewLimitedProductReleases }
+module.exports = { sendConfirmationPasswordChangeEmail, sendVerificationCodeEmail, sendEmailToAdminAfterOrder, sendEmailToUserAfterOrder, sendEmailAfterStatusChange, sendWeeklyStockUpdate, sendEmailWhenNewLimitedProductReleases, emailToUserAfterRegistration, emailToAdminAfterRegistration, sendResetPasswordEmail }

@@ -6,10 +6,12 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { v4: uuidv4 } = require('uuid');
 const verifyUser = require('../middleware/verifyUser');
+const { emailToUserAfterRegistration, emailToAdminAfterRegistration } = require('../utils/Email')
 
 // Route to register
 router.post('/register', async (req, res) => {
-    const { username, password, email, address_line_1, postal_code, phone_number } = req.body;
+    const { username, password, email } = req.body;
+    console.log(username, password, email)
 
     try {
         // Check if the email is already registered
@@ -25,20 +27,27 @@ router.post('/register', async (req, res) => {
         const newUser = new User({
             id: uuidv4(),
             username,
-            password: hashedPassword,
             email,
-            address_line_1,
-            postal_code,
-            phone_number,
+            password: hashedPassword,
+            address: {
+                street: '',
+                city: '',
+                state: '',
+                zipCode: '',
+                country: ''
+            },
             reviews: [],
             favourites: [],
             orders: [],
             messages: [],
-            role: 'user'
+            role: 'user',
+            last_login: Date.now()
         });
 
         // Save the new user to the database
         await newUser.save();
+        await emailToUserAfterRegistration(newUser)
+        await emailToAdminAfterRegistration(newUser)
 
         // Respond with success
         res.status(201).json({ message: 'User registered successfully' });
@@ -70,7 +79,7 @@ router.post('/login', async (req, res) => {
 
         // Generate a JWT token
         const token = jwt.sign(
-            { id: user._id, role: user.role },
+            { id: user._id, name: user.username, role: user.role },
             process.env.SESSION_SECRET,
             { expiresIn: '1hr' }
         );
@@ -82,8 +91,11 @@ router.post('/login', async (req, res) => {
             path: '/'
         })
 
+        user.last_login = Date.now()
+        await user.save()
+
         // Respond with token and success message
-        res.status(200).json({ message: 'User logged in successfully', token, user });
+        return res.status(200).json({ message: 'User logged in successfully', token, user });
 
     } catch (error) {
         console.log(error);

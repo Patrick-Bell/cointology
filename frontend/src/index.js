@@ -6,10 +6,21 @@ import reportWebVitals from './reportWebVitals';
 import { CartProvider } from './components/context/CartContext';
 import { FavouriteProvider } from './components/context/FavouriteContext';
 import { AuthenticateProvider } from './components/context/AuthenticateContext';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { purple } from '@mui/material/colors';
+
+const theme = createTheme({
+  palette: {
+      primary: {
+          main: purple[500],  // Use purple as the primary color
+      },
+  },
+});
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <ThemeProvider theme={theme}>
     <AuthenticateProvider>
     <FavouriteProvider>
     <CartProvider>
@@ -17,6 +28,7 @@ root.render(
     </CartProvider>
     </FavouriteProvider>
     </AuthenticateProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );
 

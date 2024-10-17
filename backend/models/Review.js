@@ -8,7 +8,7 @@ const reviewSchema = mongoose.Schema({
     rating_header: String,
     rating_message: String,
     date: { type: Date, default: Date.now() },
-    verified_response: { Boolean: true},
+    responded: {type: Boolean, default: false},
     helpful_votes: {type: Number, default: 0}
 })
 

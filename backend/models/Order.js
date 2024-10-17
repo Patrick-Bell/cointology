@@ -6,7 +6,7 @@ const orderSchema = new mongoose.Schema({
     name: String,
     email: String,
     phone: String,
-    line_items: [{ name: String, quantity: Number, unit_price: Number, front_image: String }],
+    line_items: [{ name: String, quantity: Number, unit_price: Number, front_image: String, reviewed: { type: Boolean, default: false } }],
     shipping: Number,
     discount: Number,
     total_price: Number,

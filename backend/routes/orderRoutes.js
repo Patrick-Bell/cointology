@@ -3,6 +3,7 @@ const router = express.Router()
 const Order = require('../models/Order')
 const User = require('../models/User')
 const Product = require('../models/Product')
+const Report = require('../models/Report')
 const verifyUser = require('../middleware/verifyUser')
 const { v4: uuidv4 } = require('uuid')
 const { sendEmailAfterStatusChange, sendEmailToAdminAfterOrder, sendEmailToUserAfterOrder } = require('../utils/Email')
@@ -150,7 +151,8 @@ router.post('/cash-payment-gateway', verifyUser, async (req, res) => {
                 name: item.name,
                 quantity: item.quantity,
                 unit_price: item.price,
-                front_image: item.front_image
+                front_image: item.front_image,
+                reviewed: false
             })),
             total_price: orderData.total_price,
             shipping: 1.99,
@@ -206,6 +208,56 @@ router.get('/get-image/:name', async (req, res) => {
     }
 })
 
+router.get('/orders-from-last-6-months', verifyUser, async (req, res) => {
+    try {
+
+        const user = req.user
+
+        const today = new Date()
+        const last6Months = new Date(today)
+        last6Months.setMonth(today.getMonth() - 6)
+
+        const orders = await Order.find({
+            user: user.id,
+            order_date: {
+                $gte: last6Months,
+                $lte: today
+            }
+        })
+
+        res.status(200).json(orders)
+
+    }catch(e) {
+        console.log(e)
+        res.status(500).json({ message: e })
+    }
+})
+
+router.get('/orders-from-last-1-month', verifyUser, async (req, res) => {
+    try {
+
+        const user = req.user
+
+        const today = new Date()
+        const lastMonth = new Date(today)
+        lastMonth.setMonth(today.getMonth() - 1)
+
+        const orders = await Order.find({
+            user: user.id,
+            order_date: {
+                $gte: lastMonth,
+                $lte: today
+            }
+        })
+
+        res.status(200).json(orders)
+
+    }catch(e) {
+        console.log(e)
+        res.status(500).json({ message: e })
+    }
+})
+
 router.get('/revenue-last-30-days', async (req, res) => {
     try {
         const today = new Date();
@@ -232,5 +284,24 @@ router.get('/revenue-last-30-days', async (req, res) => {
     }
 });
 
+
+// router to track package
+router.get(`/track-order/:id`, async (req, res) => {
+    const { id } = req.params
+    console.log(id)
+    try {
+        const order = await Order.find({ order_id: id })
+
+        if (!order) {
+            return res.status(400).json({ message: 'No Tracking Found' })
+        }
+
+        res.status(200).json(order)
+
+    }catch(e) {
+        console.log(e)
+        res.status(500).json({ message: e })
+    }
+})
 
 module.exports = router

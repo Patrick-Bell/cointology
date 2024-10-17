@@ -10,7 +10,7 @@ import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css'; // Import Toast CSS
 import { Link } from 'react-router-dom'
 
-function ProductCard({ product, isFavourite }) {
+function ProductCard({ product, isFavourite, products }) {
     const [isHovered, setIsHovered] = useState(false);
     const [isFavoriteVisible, setIsFavoriteVisible] = useState(true);
     const { addItemToCart } = useCart();
@@ -31,6 +31,30 @@ function ProductCard({ product, isFavourite }) {
                 return { backgroundColor: 'gray', color: 'white' };
         }
     };
+
+    const calculateRating = () => {
+        // Check if ratings exist and are an array
+        if (!Array.isArray(product.ratings) || product.ratings.length === 0) {
+            console.log("No ratings available.");
+            return 0; // Return 0 to indicate no rating
+        }
+    
+        // Calculate the total rating and log details
+        const totalRating = product.ratings.reduce((acc, item) => {
+            const ratingNumber = Number(item.rating_number); // Ensure it's a number
+            if (isNaN(ratingNumber)) {
+                return acc; // Skip invalid ratings
+            }
+            return acc + ratingNumber; // Sum valid ratings
+        }, 0);
+    
+    
+        const averageRating = totalRating / product.ratings.length; // Calculate average
+    
+        return averageRating; // Return the average rating
+    };
+    
+
 
     // Handle favorite click
     const handleFavoriteClick = async () => {
@@ -122,22 +146,22 @@ function ProductCard({ product, isFavourite }) {
                                 variant="body2"
                                 sx={{ textDecoration: 'line-through', marginRight: 1, fontSize: '0.85rem' }}
                             >
-                                ${product.price.toFixed(2)}
+                                £{product.price.toFixed(2)}
                             </Typography>
-                            <Typography variant="h6" sx={{ color: '#ff3d00', fontWeight: 'bold', fontSize: '1.2rem' }}>
-                                ${product.salePrice.toFixed(2)}
+                            <Typography variant="h6" sx={{ color: '#ccc', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                                £{product.salePrice.toFixed(2)}
                             </Typography>
                         </Box>
                     ) : (
-                        <Typography variant="h6" sx={{ color: '#ff3d00', fontWeight: 'bold', fontSize: '1.2rem' }}>
-                            ${product.price.toFixed(2)}
+                        <Typography variant="h6" sx={{ color: '#aaa', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                            £{product.price.toFixed(2)}
                         </Typography>
                     )}
                 </Box>
 
                 {/* Rating */}
                 <Box sx={{ marginTop: 1 }}>
-                    <Rating value={4} readOnly size="small" />
+                    <Rating precision={0.2} value={calculateRating()} readOnly />
                 </Box>
             </CardContent>
 
@@ -163,7 +187,7 @@ function ProductCard({ product, isFavourite }) {
                     sx={{
                         backgroundColor: 'white',
                         boxShadow: 2,
-                        ':hover': { transform: 'scale(1.1)', backgroundColor: 'red' },
+                        ':hover': { transform: 'scale(1.1)', backgroundColor: '#9c27b0', color:'white' },
                         borderRadius: '50%',
                     }}
                 >
@@ -177,7 +201,7 @@ function ProductCard({ product, isFavourite }) {
                         sx={{
                             backgroundColor: 'white',
                             boxShadow: 2,
-                            ':hover': { transform: 'scale(1.1)' },
+                            ':hover': { transform: 'scale(1.1)', backgroundColor: '#9c27b0', color:'white' },
                             borderRadius: '50%',
                         }}
                     >
@@ -187,7 +211,8 @@ function ProductCard({ product, isFavourite }) {
 
                 {/* Favorite Button */}
                 {!isFavourite && isFavoriteVisible && (
-                    <IconButton onClick={handleFavoriteClick} sx={{ color: 'red' }}>
+                    <IconButton color="black" onClick={handleFavoriteClick} 
+                    sx={{':hover': { transform: 'scale(1.1)', backgroundColor: '#9c27b0', color:'white' }, }}>
                         <FavoriteBorderIcon />
                     </IconButton>
                 )}

@@ -106,7 +106,7 @@ function OrderDetail() {
                                 <ListItemText primary="Address" secondary={`${shipping_address.address_line_1}, ${shipping_address.city}, ${shipping_address.address_line_2}, ${shipping_address.postal_code}`} />
                             </ListItem>
                             <ListItem>
-                                <ListItemText primary="Shipping Method" secondary={shipping_method.toUpperCase() + ' - ' + '£'+(shipping / 100).toFixed(2)} />
+                                <ListItemText primary="Shipping Method" secondary={shipping_method.toUpperCase() + ' - ' + '£'+(order.order_type === 'card' ? (order.shipping / 100).toFixed(2) : order.shipping)} />
                             </ListItem>
                             <ListItem>
                                 <ListItemText primary="Estimated Delivery" secondary={estimated_delivery ? (new Date(estimated_delivery.earliestDate).toLocaleDateString()) + ' - ' + (new Date(estimated_delivery.latestDate).toLocaleDateString()): 'N/A'} />
@@ -158,7 +158,7 @@ function OrderDetail() {
 
                 {/* Total Price and Order Date */}
                 <Typography variant="h6">Total Price: ${total_price}</Typography>
-                <Typography variant="body1" color="text.secondary">Order Date: {new Date(order_date).toLocaleString()}</Typography>
+                <Typography variant="body1" color="text.secondary">Order Date: {order_date ? new Date(order_date).toLocaleString() : 'N/A'}</Typography>
                 <Typography variant="body1" color="text.secondary">Order Message: {order_message}</Typography>
             </Paper>
         </Box>

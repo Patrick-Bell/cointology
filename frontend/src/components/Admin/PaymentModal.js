@@ -124,7 +124,7 @@ function PaymentModal({ orderId, open, onClose }) {
                         <RadioGroup value={newStatus || status} onChange={handleStatusChange}>
                             <Grid container spacing={2}>
                                 {statusOptions.map((option) => (
-                                    <Grid item xs={12} sm={6} key={option.value}>
+                                    <Grid item xs={12} sm={12} key={option.value}>
                                         <Paper
                                             sx={{
                                                 display: 'flex',
