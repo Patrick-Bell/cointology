@@ -65,7 +65,7 @@ function Footer(){
                         <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>Account</Typography>
                         <ul style={{ listStyle: 'none', padding: 0 }}>
                             <li><Button variant="text" sx={{ color: 'white' }}>Log In</Button></li>
-                            <li><Button variant="contained" sx={{ backgroundColor: '#9c27b0', color: 'white' }}>Register</Button></li>
+                            <li><Button variant="contained" className="pulse" sx={{ backgroundColor: '#9c27b0', color: 'white' }}>Register</Button></li>
                         </ul>
                     </Grid>
 
@@ -117,9 +117,9 @@ function Footer(){
                     <Grid item xs={12} sm={6} md={4}>
                         <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>Help & Support</Typography>
                         <ul style={{ listStyle: 'none', padding: 0 }}>
-                            <li className='footer-list'><Link className='footer-list' href="/faq" color="inherit" underline="none">FAQ</Link></li>
-                            <li className='footer-list'><Link className='footer-list' href="/support" color="inherit" underline="none">Customer Support</Link></li>
-                            <li className='footer-list'><Link className='footer-list' href="/returns" color="inherit" underline="none">Returns & Refunds</Link></li>
+                            <li className='footer-list'><Link className='footer-list' to="/faq" color="inherit" underline="none">FAQ</Link></li>
+                            <li className='footer-list'><Link className='footer-list' to="/faq" color="inherit" underline="none">Customer Support</Link></li>
+                            <li className='footer-list'><Link className='footer-list' to="/faq" color="inherit" underline="none">Returns & Refunds</Link></li>
                         </ul>
                     </Grid>
 

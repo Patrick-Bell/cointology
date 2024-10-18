@@ -51,9 +51,9 @@ const AdminNavbar = () => {
                     open={Boolean(anchorEl)}
                     onClose={handleClose}
                 >
-                    <Link to='/dashboard'><MenuItem onClick={handleClose}>Dashboard</MenuItem></Link>
-                    <Link to='/cart'><MenuItem onClick={handleClose}>Cart</MenuItem></Link>
-                    <Link to='/'><MenuItem onClick={handleClose}>Products</MenuItem></Link>
+                    <Link className='nav' to='/dashboard'><MenuItem onClick={handleClose}>Dashboard</MenuItem></Link>
+                    <Link className='nav' to='/cart'><MenuItem onClick={handleClose}>Cart</MenuItem></Link>
+                    <Link className='nav' to='/'><MenuItem onClick={handleClose}>Products</MenuItem></Link>
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </Menu>
             </Toolbar>

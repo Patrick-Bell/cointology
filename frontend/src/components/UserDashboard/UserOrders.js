@@ -38,6 +38,7 @@ import UserSideBar from "./UserSideBar";
 import SearchIcon from '@mui/icons-material/Search';
 import ArticleIcon from '@mui/icons-material/Article';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ScrollInView from '../animation/ScrollInView'
 
 function UserOrders() {
     const [originalOrders, setOriginalOrders] = useState([]); // State to store the full set of orders
@@ -228,10 +229,12 @@ function UserOrders() {
                 <Paper>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', overflowX: 'auto', width: '100%', whiteSpace: 'nowrap' }}>
                         <Box>
+                            <ScrollInView direction='left'>
                             <Button variant={activeButton === 'all' ? 'outlined' : ''} sx={{fontWeight: activeButton === 'all' ? '900' : '' }} onClick={handleAllOrders}>View All</Button>
                             <Button variant={activeButton === 'to-pay' ? 'outlined' : ''} sx={{fontWeight: activeButton === 'to-pay' ? '900' : '' }} onClick={handlePayOrders}>To Pay ({toPay})</Button>
                             <Button variant={activeButton === 'shipped' ? 'outlined' : ''} sx={{fontWeight: activeButton === 'shipped' ? '900' : '' }} onClick={handleShippedOrders}>Shipped ({toShipped})</Button>
                             <Button variant={activeButton === 'processed' ? 'outlined' : ''} sx={{fontWeight: activeButton === 'processed' ? '900' : '' }} onClick={handleProcessedOrders}>Processed</Button>
+                            </ScrollInView>
                         </Box>
                         <Box>
                             <Button disabled>Deleted Orders</Button>
@@ -276,6 +279,7 @@ function UserOrders() {
                         </>
                     ) : (
                         orders.map(order => (
+                            <ScrollInView direction='top'>
                             <Accordion
                                 key={order._id}
                                 sx={{ marginBottom: 2 }}
@@ -283,7 +287,7 @@ function UserOrders() {
                                 onChange={() => setExpandedOrderId(expandedOrderId === order._id ? null : order._id)} // Close if already open
                             >
                                 <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
+                                    expandIcon={<IconButton><ExpandMoreIcon /></IconButton>}
                                     aria-controls={`panel-${order._id}-content`}
                                     id={`panel-${order._id}-header`}
                                     sx={{ display: 'flex', justifyContent: 'space-between' }}
@@ -379,6 +383,7 @@ function UserOrders() {
                                     </Box>
                                 </AccordionDetails>
                             </Accordion>
+                            </ScrollInView>
                         ))
                     )}
                 </Paper>

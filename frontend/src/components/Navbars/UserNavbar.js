@@ -7,14 +7,16 @@ import { useAuth } from '../context/AuthenticateContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../styles/cointology-logo.png'
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import RotateBounce from '../animation/RotateBounce';
 
 function UserNavbar() {
     const { getTotalQuantity, cartItems } = useCart();
     const [quantity, setQuantity] = useState(0);
     const settings = [
-        { name: 'Profile', path: '/my-dashboard' },
-        { name: 'Account', path: '/' },
-        { name: 'Dashboard', path: '/cart' },
+        { icon: <PersonOutlineIcon/>,  name: 'Profile', path: '/my-dashboard' },
+        { icon: <ShoppingCartIcon/>, name: 'Cart', path: '/cart' },
     ];
 
     const navigate = useNavigate()
@@ -99,7 +101,9 @@ function UserNavbar() {
                         >
                             {settings.map((setting) => (
                                 <MenuItem key={setting.name} onClick={handleCloseUserMenu} component={Link} to={setting.path}>
-                                    <Typography sx={{ textAlign: 'center' }}>{setting.name}</Typography>
+                                    <Typography sx={{ display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%'}}>
+                                        {setting.name}
+                                        </Typography>
                                 </MenuItem>
                             ))}
                             <MenuItem onClick={handleLogout}>Logout</MenuItem>

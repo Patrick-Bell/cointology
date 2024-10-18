@@ -109,7 +109,7 @@ router.get('/product-details/:id', async (req, res) => {
     const { id } = req.params
     try {
 
-        const product = await Product.findOne({ id: id }).populate('ratings')
+        const product = await Product.findOne({ _id: id }).populate('ratings')
 
         console.log('product found', product)
 

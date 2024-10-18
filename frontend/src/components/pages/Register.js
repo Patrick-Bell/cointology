@@ -10,7 +10,9 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-//
+import Shake from '../animation/Shake';
+import { ToastContainer, toast } from 'react-toastify';
+
 function Register() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -52,6 +54,10 @@ function Register() {
         // If there are any validation errors, set them and return early
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
+
+            setTimeout(() => {
+                setErrors({})
+            }, 3000);
             return;
         }
 
@@ -62,12 +68,19 @@ function Register() {
 
         } catch (error) {
             console.error(error);
-            setErrors({ submit: 'Something went wrong. Please try again.' });
+            setErrors({ submit: error.response.data.message });
+            toast.error('Email already registered. Please use another email or contact support.')
+
+            setTimeout(() => {
+                setErrors({ submit: ''})
+                setEmail('')
+            }, 3000);
         }
     };
 
     return (
         <>
+        <ToastContainer/>
             <Box
                 sx={{
                     display: 'flex',
@@ -84,6 +97,7 @@ function Register() {
                     <form onSubmit={handleSubmit}>
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
+                                <Shake hasError={Boolean(errors.name)}>
                                 <TextField
                                     label="Name"
                                     type="text"
@@ -94,8 +108,10 @@ function Register() {
                                     error={Boolean(errors.name)}
                                     helperText={errors.name}
                                 />
+                                </Shake>
                             </Grid>
                             <Grid item xs={12}>
+                            <Shake hasError={Boolean(errors.email)}>
                                 <TextField
                                     label="Email"
                                     type="email"
@@ -106,8 +122,10 @@ function Register() {
                                     error={Boolean(errors.email)}
                                     helperText={errors.email}
                                 />
+                                </Shake>
                             </Grid>
                             <Grid item xs={12}>
+                            <Shake hasError={Boolean(errors.password)}>
                                 <TextField
                                     label="Password"
                                     type="password"
@@ -118,8 +136,10 @@ function Register() {
                                     error={Boolean(errors.password)}
                                     helperText={errors.password}
                                 />
+                                </Shake>
                             </Grid>
                             <Grid item xs={12}>
+                            <Shake hasError={Boolean(errors.confirmPass)}>
                                 <TextField
                                     label="Confirm Password"
                                     type="password"
@@ -130,9 +150,11 @@ function Register() {
                                     error={Boolean(errors.confirmPass)}
                                     helperText={errors.confirmPass}
                                 />
+                                </Shake>
                             </Grid>
                         </Grid>
                         <Button
+                            disabled={errors.name || errors.email || errors.password || errors.confirmPass || errors.submit}
                             type="submit"
                             variant="contained"
                             color="primary"

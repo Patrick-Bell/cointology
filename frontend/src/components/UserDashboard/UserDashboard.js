@@ -26,9 +26,11 @@ function UserDashboard() {
         } else if (activeSection === 'profile') {
             return <UserDetails/>
         } else if (activeSection === 'dashboard') {
-            return <Dashboard />
+            return <Dashboard setActiveSection={setActiveSection} />
         }
     }
+
+    //
 
     return (
         <>

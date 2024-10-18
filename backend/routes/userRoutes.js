@@ -79,7 +79,7 @@ router.post('/login', async (req, res) => {
 
         // Generate a JWT token
         const token = jwt.sign(
-            { id: user._id, name: user.username, role: user.role },
+            { id: user._id, name: user.username, role: user.role, email: user.email },
             process.env.SESSION_SECRET,
             { expiresIn: '1hr' }
         );
@@ -161,5 +161,31 @@ router.get('/user/:id', async (req, res) => {
         res.status(500).json({message: e})
     }
 })
+
+// route to update user details
+router.put('/edit-user-details/:id', async (req, res) => {
+    const { id } = req.params; // Fixed to use 'id' from the params
+    const { username, email } = req.body;
+
+    console.log(username, email);
+
+    try {
+        // Use findOneAndUpdate to find the user and update in one step
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: id }, // Find user by ID
+            { username, email }, // Update fields
+            { new: true, runValidators: true } // Options
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' }); // Handle case where user is not found
+        }
+
+        res.status(200).json(updatedUser); // Send back the updated user details
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Internal server error' }); // Handle server error
+    }
+});
 
 module.exports = router;

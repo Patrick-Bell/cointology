@@ -97,6 +97,7 @@ function Cart() {
             Your cart is empty!
         </Typography>
         <Button
+            className='pulse'
             variant="contained"
             color="primary"
             onClick={() => navigate('/')} // Navigate to the shop page
@@ -160,7 +161,7 @@ function Cart() {
                                                 </Box>
                                             </TableCell>
                                             <TableCell sx={{ textAlign: 'center' }}>
-                                                ${item.item_total ? item.item_total.toFixed(2) : '0.00'}
+                                                £{item.item_total ? item.item_total.toFixed(2) : '0.00'}
                                             </TableCell>
                                             <TableCell sx={{ textAlign: 'center' }}>
                                                 <IconButton onClick={() => handleRemoveItem(item.id)} color="error" size="small">
@@ -182,7 +183,7 @@ function Cart() {
                             sx={{ padding: 3, textAlign: 'center', backgroundColor: '#ffffff' }}
                         >
                             <Typography variant="h6" gutterBottom>
-                                Total: <strong>${calculateTotalPrice()}</strong>
+                                Total: <strong>£{calculateTotalPrice()}</strong>
                             </Typography>
                             <ScrollInView direction='top'>
                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

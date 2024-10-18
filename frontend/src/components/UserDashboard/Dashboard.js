@@ -4,8 +4,10 @@ import { useCart } from '../context/CartContext'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import CountUp from 'react-countup';
 
-function Dashboard() {
+
+function Dashboard({ setActiveSection }) {
     const { user } = useAuth();  // User context for displaying user info
     const { getTotalQuantity } = useCart()
     const [orderData, setOrderData] = useState([]);
@@ -13,8 +15,21 @@ function Dashboard() {
     const [ordersReview, setOrdersReview] = useState(null)
     const [favs, setFavs] = useState(0)
     const [totalOrders, setTotalOrders] = useState(0)
+    const [joined, setJoined] = useState()
 
     const quantity = getTotalQuantity()
+    console.log('here is the user', user)
+
+    const fetchUser = async () => {
+        try {
+            const response = await axios.get(`/api/user/${user.id}`)
+            console.log(response.data)
+            setJoined(response.data.joined)
+        }catch(e) {
+            console.log(e)
+        }
+    }
+
 
     const fetchOrders = async () => {
         try {
@@ -59,7 +74,7 @@ function Dashboard() {
     
             // Convert the object to an array with month names and counts
             const sortedOrders = months.map(month => {
-                return { month: month, orders: sortByMonth[month] }; // Use the initialized counts
+                return { month: month, orders: sortByMonth[month] } ; // Use the initialized counts
             });
     
             // Sort the orders by year and month in descending order
@@ -140,6 +155,7 @@ function Dashboard() {
         findOrdersToReview()
         getFavourites()
         fetchUserOrders()
+        fetchUser()
     }, []);
 
     return (
@@ -160,9 +176,9 @@ function Dashboard() {
                             <Avatar sx={{ bgcolor: '#3f51b5', mb: 2 }}>O</Avatar>
                             <Typography variant="h6">Recent Orders</Typography>
                             <Typography variant="body2" color="textSecondary">
-                                You’ve placed {lastMonthOrder} orders in the last month.
+                                You’ve placed <CountUp duration={10} end={lastMonthOrder} /> orders in the last month.
                             </Typography>
-                            <Button variant="contained" sx={{ mt: 2 }} fullWidth>
+                            <Button onClick={() => setActiveSection('orders')} variant="contained" sx={{ mt: 2 }} fullWidth>
                                 View Orders
                             </Button>
                         </CardContent>
@@ -177,9 +193,9 @@ function Dashboard() {
                             <Avatar sx={{ bgcolor: '#ff5722', mb: 2 }}>R</Avatar>
                             <Typography variant="h6">Pending Reviews</Typography>
                             <Typography variant="body2" color="textSecondary">
-                                You have products from {ordersReview} orders waiting for review.
+                                You have products from <CountUp duration={10} end={ordersReview} /> orders to review.
                             </Typography>
-                            <Button variant="contained" sx={{ mt: 2 }} fullWidth>
+                            <Button onClick={() => setActiveSection('review')} variant="contained" sx={{ mt: 2 }} fullWidth>
                                 Write a Review
                             </Button>
                         </CardContent>
@@ -193,9 +209,9 @@ function Dashboard() {
                             <Avatar sx={{ bgcolor: '#009688', mb: 2 }}>F</Avatar>
                             <Typography variant="h6">Favorites</Typography>
                             <Typography variant="body2" color="textSecondary">
-                                You’ve saved {favs} favorite items.
+                                You’ve saved <CountUp duration={10} end={favs} /> favorite items.
                             </Typography>
-                            <Button variant="contained" sx={{ mt: 2 }} fullWidth>
+                            <Button onClick={() => setActiveSection('favourites')} variant="contained" sx={{ mt: 2 }} fullWidth>
                                 View Favorites
                             </Button>
                         </CardContent>
@@ -233,7 +249,16 @@ function Dashboard() {
                     </Grid>
 
                     {/* Card for Wishlist Items */}
-                    
+                    <Grid item xs={12} md={4}>
+                        <Card sx={{ p: 2, borderRadius: '12px', boxShadow: 3 }}>
+                            <CardContent>
+                                <Typography variant="h6">Member</Typography>
+                                <Typography variant="body2">
+                                    You have been a memeber since {new Date (joined).toLocaleDateString('en-GB')}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
                     
                 </Grid>
             </Box>
@@ -250,6 +275,7 @@ function Dashboard() {
             <XAxis 
                 dataKey="month" 
                 tick={{ fill: 'black', fontSize: 12, dy: 10 }} // Change tick color to black
+                
             />
             <YAxis 
                 tick={{ fill: 'black', fontSize: 12 }} // Change tick color to black

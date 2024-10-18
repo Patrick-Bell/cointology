@@ -108,14 +108,14 @@ const sendEmailToUserAfterOrder = async (orderData) => {
         }).join('');
 
         const emailContent = `
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; background-color: ##f9f9f9;; padding: 20px; border-radius: 8px;">
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; background-color: #f9f9f9;; padding: 20px; border-radius: 8px;">
             <h2 style="color: #333;">Hi ${orderData.name},</h2>
             <p>Thank you for your recent order! We are excited to get your items shipped to you. Your order number is <span style="color: #007BFF"> ${orderData.order_id}</span></p>
 
             <h3 style="color: #444;">Order Summary:</h3>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border-radius: 5px; overflow: hidden;">
                 <thead>
-                    <tr style="background-color: #007BFF; color: white; text-align: center; border: 1px solid #ccc;">
+                    <tr style="background-color: #9c27b0; color: white; text-align: center; border: 1px solid #ccc;">
                         <th style="padding: 12px">Product</th>
                         <th style="padding: 12px">Quantity</th>
                         <th style="padding: 12px">Price</th>
@@ -142,7 +142,7 @@ const sendEmailToUserAfterOrder = async (orderData) => {
     
             <p>If you notice a mistake in your shipping address, please reach out as soon as possible. Once the order is shipped, it will be too late.</p>
 
-            <div style="padding: 10px; background-color: #007BFF; color: white;">
+            <div style="padding: 10px; background-color: #9c27b0; color: white;">
             <h3 style="color: #444;">Total Price: £${orderData.total_price.toFixed(2)}</h3>
             </div>
 
@@ -151,7 +151,7 @@ const sendEmailToUserAfterOrder = async (orderData) => {
 
             <p>Thank you for shopping with us!</p>
 
-            <footer style="margin-top: 20px; padding: 10px; background-color: #007BFF; color: white; text-align: center; border-radius: 5px;">
+            <footer style="margin-top: 20px; padding: 10px; background-color: #9c27b0; color: white; text-align: center; border-radius: 5px;">
                 <p style="margin: 0;">Best Regards,<br>Your Company Name</p>
             </footer>
         </div>
@@ -295,7 +295,7 @@ const sendEmailAfterStatusChange = async (data) => {
             <p>If you have any further questions or concerns, feel free to reply to this email or contact our customer service team.</p>
             <p>Thank you for choosing us!</p>
             
-            <footer style="margin-top: 20px; padding: 10px; background-color: #007BFF; color: white; text-align: center; border-radius: 5px;">
+            <footer style="margin-top: 20px; padding: 10px; background-color: #9c27b0; color: white; text-align: center; border-radius: 5px;">
                 <p style="margin: 0;">Best Regards,<br>Your Company Name</p>
             </footer>
 

@@ -98,3 +98,30 @@
     text-decoration: none;
     color: black;
 }
+
+.start-shopping{
+    text-decoration: none;
+    color: black;
+}
+
+.start-shopping:hover{
+    color: white;
+}
+
+
+
+
+.pulse {
+    animation: pulse-animation 2s infinite;
+    text-decoration: none;
+    list-style: none;
+  }
+  
+  @keyframes pulse-animation {
+    0% {
+      box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
+    }
+    100% {
+      box-shadow: 0 0 0 20px rgba(0, 0, 0, 0);
+    }
+  }

@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { ArrowUpward, ArrowDownward, People, ShoppingCart, MonetizationOn, CheckCircle, Cancel, Timer, Replay } from '@mui/icons-material';
 import axios from 'axios';
+import { useAuth } from '../context/AuthenticateContext';
 
 function MainDash() {
     const [totalUsers, setTotalUsers] = useState(0);
@@ -28,6 +29,11 @@ function MainDash() {
     const [loading, setLoading] = useState(true);
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Set default to current month (1-12)
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Set default to current year
+
+
+    const { signout } = useAuth()
+
+
 
     // Year options from 2020 to the current year
     const yearOptions = Array.from({ length: 5 }, (v, i) => {
@@ -233,17 +239,14 @@ function MainDash() {
                 <Grid item xs={12}>
                     <Paper elevation={3} sx={{ p: 2 }}>
                         <Typography variant="h6" gutterBottom>Quick Links</Typography>
-                        <Button href="/users" variant="outlined" sx={{ m: 1 }}>
-                            Manage Users
+                        <Button href="/home" variant="outlined" sx={{ m: 1 }}>
+                            Home
                         </Button>
-                        <Button href="/orders" variant="outlined" sx={{ m: 1 }}>
-                            Manage Orders
+                        <Button href="/" variant="outlined" sx={{ m: 1 }}>
+                            Product Page
                         </Button>
-                        <Button href="/products" variant="outlined" sx={{ m: 1 }}>
-                            Manage Products
-                        </Button>
-                        <Button href="/settings" variant="outlined" sx={{ m: 1 }}>
-                            Settings
+                        <Button onClick={signout} variant="outlined" sx={{ m: 1 }}>
+                            Logout
                         </Button>
                     </Paper>
                 </Grid>

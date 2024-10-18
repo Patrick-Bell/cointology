@@ -29,6 +29,7 @@ import Register from '../pages/Register';
 import ResetPassword from '../pages/ResetPassword';
 import ConfirmPassword from '../pages/ConfirmPassword';
 import Shipping from '../pages/Shipping';
+import Faq from '../pages/Faq';
 
 
 
@@ -81,6 +82,7 @@ function AppContent() {
                 <Route path='/reset-password/' element={<ResetPassword />}></Route>
                 <Route path='/confirm-password/:token' element={<ConfirmPassword />}></Route>
                 <Route path='/shipping' element={<Shipping />}></Route>
+                <Route path='/faq' element={<Faq />}></Route>
 
 
                  {/* User-Only Routes (Protected) */}

@@ -7,6 +7,7 @@ const Report = require('../models/Report')
 const verifyUser = require('../middleware/verifyUser')
 const { v4: uuidv4 } = require('uuid')
 const { sendEmailAfterStatusChange, sendEmailToAdminAfterOrder, sendEmailToUserAfterOrder } = require('../utils/Email')
+const { updateStockAfterOrder } = require('../utils/UpdateOrder')
 
 
 // route to retrieve all orders (admin)
@@ -177,6 +178,7 @@ router.post('/cash-payment-gateway', verifyUser, async (req, res) => {
         const savedOrder = await newOrder.save()
         await sendEmailToUserAfterOrder(newOrder)
         await sendEmailToAdminAfterOrder(newOrder)
+        await updateStockAfterOrder(newOrder)
 
         await User.findOneAndUpdate(
             { _id: user.id }, {$push: { orders: savedOrder._id }}, { new: true }

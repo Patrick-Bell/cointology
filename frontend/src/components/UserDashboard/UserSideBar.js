@@ -25,6 +25,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthenticateContext'
+import { motion } from 'framer-motion';
 
 function UserSideBar({ setActiveSection, activeSection }) {
     const [mobileOpen, setMobileOpen] = useState(false);

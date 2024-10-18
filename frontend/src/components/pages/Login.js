@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthenticateContext';
+import Shake from '../animation/Shake'
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -70,6 +71,7 @@ function Login() {
     };
 
     return (
+        <>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', bgcolor: '#f5f5f5' }}>
             <Paper elevation={3} sx={{ padding: 4, maxWidth: '400px', width: '100%' }}>
                 <Typography variant="h4" component="h1" gutterBottom>
@@ -78,6 +80,7 @@ function Login() {
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
+                            <Shake hasError={emailError}>
                             <TextField
                                 label="Email"
                                 type="email"
@@ -89,8 +92,10 @@ function Login() {
                                 helperText={emailError ? errorMessage : ''} // Show helper text if there's an error
                                 required
                             />
+                            </Shake>
                         </Grid>
                         <Grid item xs={12}>
+                            <Shake hasError={passwordError}>
                             <TextField
                                 label="Password"
                                 type="password"
@@ -102,6 +107,7 @@ function Login() {
                                 helperText={passwordError ? errorMessage : ''} // Show helper text if there's an error
                                 required
                             />
+                            </Shake>
                         </Grid>
                     </Grid>
                     <Button
@@ -127,6 +133,7 @@ function Login() {
                 </Grid>
             </Paper>
         </Box>
+        </>
     );
 }
 

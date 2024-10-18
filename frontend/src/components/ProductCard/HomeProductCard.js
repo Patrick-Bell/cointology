@@ -158,7 +158,7 @@ function HomeProductCard({ product }) {
                 </IconButton>
 
                 {/* View Details Button */}
-                <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }} target='_blank'>
+                <Link to={`/product/${product._id}`} style={{ textDecoration: 'none' }} target='_blank'>
                     <IconButton
                         color="black"
                         sx={{

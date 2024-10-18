@@ -184,6 +184,7 @@ function ProductCard({ product, isFavourite, products }) {
                 <IconButton
                     onClick={handleAddToCart} // Use the new handleAddToCart function
                     color="black"
+                    disabled={product.stock === 0}
                     sx={{
                         backgroundColor: 'white',
                         boxShadow: 2,
@@ -195,7 +196,7 @@ function ProductCard({ product, isFavourite, products }) {
                 </IconButton>
 
                 {/* View Details Button */}
-                <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }} target='_blank'>
+                <Link to={`/product/${product._id}`} style={{ textDecoration: 'none' }} target='_blank'>
                     <IconButton
                         color="black"
                         sx={{
