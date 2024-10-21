@@ -26,6 +26,7 @@ import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { ToastContainer, toast } from 'react-toastify';
 
+
 const ProductDetail = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -35,6 +36,8 @@ const ProductDetail = () => {
     const [mainImage, setMainImage] = useState(''); // To manage the main image
     const [rating, setRating] = useState(0);
     const [ratingLength, setRatingLength] = useState(0);
+    const [cartBtn, setCartBtn] = useState('Add to Cart')
+    const [cartLoad, setCartLoad] = useState(false)
 
     const { addItemToCart } = useCart();
 
@@ -67,6 +70,8 @@ const ProductDetail = () => {
     };
 
     const handleAddToCart = async () => {
+        setCartLoad(true)
+        setCartBtn(<CircularProgress />)
         try {
             addItemToCart({
                 id: product._id,
@@ -76,6 +81,13 @@ const ProductDetail = () => {
                 front_image: product.front_image,
                 item_total: (product.salePrice || product.price) * 1,
             });
+
+            setCartBtn(<><CheckCircleIcon/> Product Added to Cart</>)
+
+            setTimeout(() => {
+                setCartBtn('Add to Cart')
+                setCartLoad(false)
+            }, 3000);
 
             toast.success('Product Added to Cart!');
         } catch (e) {
@@ -250,8 +262,8 @@ const ProductDetail = () => {
                         <Divider sx={{ my: 2 }} />
 
                         <Box sx={{ mt: 3, display: 'flex', alignItems: 'center' }}>
-                            <Button variant="contained" color="primary" sx={{ mr: 2 }} onClick={handleAddToCart}>
-                                Add to Cart
+                            <Button disabled={cartLoad} variant="contained" color="primary" sx={{ mr: 2 }} onClick={handleAddToCart}>
+                                {cartBtn}
                             </Button>
                         </Box>
                     </Paper>

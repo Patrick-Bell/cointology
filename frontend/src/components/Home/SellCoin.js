@@ -123,7 +123,7 @@ function SellCoin() {
                         <br /><br />
                         Simply follow the steps above to send us a picture of your coin for a free evaluation. 
                         Our team of experts will assess the condition and value of your coin. If it meets our criteria, 
-                        we will make you an offer to buy it. Selling your coin has never been easier and you could earn up to <strong>£{inView ? <CountUp duration={5} end={1000}/> : '£1000'}</strong>.
+                        we will make you an offer to buy it. Selling your coin has never been easier and you could earn up to <strong>£{inView ? <CountUp duration={5} end={1000}/> : '1000'}</strong>.
                     </Typography>
                     <ScrollInView direction='bottom'>
                     <Button
