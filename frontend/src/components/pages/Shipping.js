@@ -7,7 +7,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PolicyIcon from '@mui/icons-material/Policy';
 import Image from '../styles/shipping-footer.webp'; // Assuming you have this image
 import shippingImage from '../styles/shipping-picture.png';
-import Footer from '../Reuseable/Footer';
+import Footer from '../Home/Footer';
 import ScrollInView from '../animation/ScrollInView';
 import VisaImg from '../styles/visa.avif'
 import MasterCardImg from '../styles/mastercard.avif'

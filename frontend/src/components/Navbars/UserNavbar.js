@@ -62,8 +62,8 @@ function UserNavbar() {
 
                 {/* Center: Navigation Links */}
                 <Box sx={{ display: 'flex', justifyContent: 'center', flexGrow: 1 }}>
-                    <Button color="inherit" component={Link} to="/home">Home</Button>
-                    <Button color="inherit" component={Link} to="/">Products</Button>
+                    <Button color="inherit" component={Link} to="/">Home</Button>
+                    <Button color="inherit" component={Link} to="/products">Products</Button>
                 </Box>
 
 

@@ -1,6 +1,6 @@
 import { Box} from '@mui/material';
 import { ToastContainer } from 'react-toastify';
-import Footer from '../Reuseable/Footer';
+import Footer from '../Home/Footer';
 import Features from '../Home/Features';
 import AboutUs from '../Home/AboutUs';
 import SwiperProducts from '../Home/SwiperProducts';

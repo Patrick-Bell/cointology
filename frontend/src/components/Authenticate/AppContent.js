@@ -71,12 +71,12 @@ function AppContent() {
 
             <Routes>
                 <Route path='/login' element={<Login/>}></Route>
-                <Route path="/" element={<ProductPage />} />
+                <Route path="/" element={<HomePage />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path='/cash-payment/:id' element={<CashPayment />}></Route>
                 <Route path='/success' element={<Success/>}></Route>
                 <Route path='/product/:id' element={<ProductDetail />}></Route>
-                <Route path='/home' element={<HomePage/>}></Route>
+                <Route path='/products' element={<ProductPage/>}></Route>
                 <Route path='/register' element={<Register />}></Route>
                 <Route path='/cancel' element={<Cancel />}></Route>
                 <Route path='/reset-password/' element={<ResetPassword />}></Route>

@@ -62,8 +62,8 @@ function PublicNavbar() {
                             flexGrow: 1,
                         }}
                     >
-                        <Button color="inherit" component={Link} to="/home">Home</Button>
-                        <Button color="inherit" component={Link} to="/">Products</Button>
+                        <Button color="inherit" component={Link} to="/">Home</Button>
+                        <Button color="inherit" component={Link} to="/products">Products</Button>
                     </Box>
 
                     {/* Right Side: Shopping Cart Icon, Login, and Hamburger Menu for small screens */}

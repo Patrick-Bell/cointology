@@ -68,7 +68,7 @@ function UserSideBar({ setActiveSection, activeSection }) {
                     button 
                     key={item.text} 
                     component={item.section === 'back' ? Link : 'div'}  // Use Link for the 'Back' section
-                    to={item.section === 'back' ? '/home' : ''}  // Set the destination for 'Back'
+                    to={item.section === 'back' ? '/' : ''}  // Set the destination for 'Back'
                     onClick={() => setActiveSection(item.section)}
                     sx={{
                         backgroundColor: activeSection === item.section ? '#9c27b0' : 'transparent',
@@ -130,8 +130,8 @@ function UserSideBar({ setActiveSection, activeSection }) {
                         open={Boolean(anchorEl)}
                         onClose={handleClose}
                     >
-                        <Link className='nav' to='/home'><MenuItem onClick={handleClose}>Home</MenuItem></Link>
-                        <Link className='nav' to='/'><MenuItem onClick={handleClose}>Shop</MenuItem></Link>
+                        <Link className='nav' to='/'><MenuItem onClick={handleClose}>Home</MenuItem></Link>
+                        <Link className='nav' to='/products'><MenuItem onClick={handleClose}>Shop</MenuItem></Link>
                         <Link className='nav' to='/cart'><MenuItem onClick={handleClose}>Cart</MenuItem></Link>
                         <MenuItem onClick={signout}>Logout</MenuItem>
                     </Menu>

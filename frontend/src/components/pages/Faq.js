@@ -3,7 +3,7 @@ import { Box, Typography, Accordion, AccordionSummary, AccordionDetails, Grid, C
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FaqImg from '../styles/faq.png';
 import ScrollInView from '../animation/ScrollInView';
-import Footer from '../Reuseable/Footer';
+import Footer from '../Home/Footer';
 
 function Faq() {
     const [expanded, setExpanded] = useState(null);

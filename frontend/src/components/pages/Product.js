@@ -22,7 +22,7 @@ import { ToastContainer } from 'react-toastify';
 import { useAuth } from '../context/AuthenticateContext';
 import InfoIcon from '@mui/icons-material/Info';
 import ScrollInView from '../animation/ScrollInView';
-import Footer from '../Reuseable/Footer';
+import Footer from '../Home/Footer';
 
 function Product() {
   const [selectedColors, setSelectedColors] = useState([])

@@ -64,8 +64,8 @@ function Footer(){
                     <Grid item xs={12} sm={6} md={3}>
                         <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>Account</Typography>
                         <ul style={{ listStyle: 'none', padding: 0 }}>
-                            <li><Button variant="text" sx={{ color: 'white' }}>Log In</Button></li>
-                            <li><Button variant="contained" className="pulse" sx={{ backgroundColor: '#9c27b0', color: 'white' }}>Register</Button></li>
+                            <li><Button component='a' href="/login" variant="text" sx={{ color: 'white' }}>Log In</Button></li>
+                            <li><Button component='a' href="/register" variant="contained" className="pulse" sx={{ backgroundColor: '#9c27b0', color: 'white' }}>Register</Button></li>
                         </ul>
                     </Grid>
 
